@@ -7,12 +7,12 @@ If your values are out of range (significantly low or high) You will get a phone
 
 ## Context
 
-I have type 1 diabetes. With all the amazing open source initiatives, i added a way to notify my contacts should i become unresponsive due to being too high or too low. All the data comes from my nightscout dasbhoard:
+I have type 1 diabetes. With all the amazing open source initiatives, i added a way to notify my contacts should i become unresponsive due to being too high or too low. All the data comes from my nightscout dasbhoard:(If you want to check my blood glucose values in real time go to https://dianux.superdi.dev)
 
 ![Nightscout Dashboard](nightscout.png)
 
 
-Although the initial state of this app is very basic, it's work in progress and you're more than welcome to contribute. The idea is to add more configuration options improve the UI.
+Although the initial state of this app is very basic, it's work in progress and you're more than welcome to contribute. The idea is to add more configuration options and improve the UI.
 
 ![Scout Dashboard](dashboard.png)
 
