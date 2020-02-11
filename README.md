@@ -1,4 +1,4 @@
-# Nightscout Notifier
+# Scout: Nexmo + Nightscout
 
 An app to notify your preferred emergency contacts in case your blood glucose values from Nightscout are  out of range.
 This app uses the Nexmo messages and voice api's and is written in Flask.
