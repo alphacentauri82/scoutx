@@ -1,0 +1,71 @@
+/* fallback */
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(/static/fonts/google-icons.woff2) format('woff2');
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -moz-font-feature-settings: 'liga';
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.logo{
+ font-size:30px !important;
+ padding-top:5px;
+}
+
+div.g-signin2{
+ margin-top:10px;
+}
+
+div.g-signin2 div{
+ margin:auto;
+}
+div#user{
+ margin-top:10px;
+ margin-bottom:10px;
+}
+div#user.guest{
+ text-align:center;
+ font-size:20px;
+ font-weight:bold;
+}
+div#user.logged{
+ text-align:right;
+}
+div#user.logged a{
+ margin-left:10px;
+}
+body{
+ display: flex;
+ min-height: 100vh;
+ flex-direction: column;
+}
+main {
+ flex: 1 0 auto;
+}
+div.add_contact{
+ height:20px;
+}
+div.add-contacts-container{
+ padding-bottom:40px !important;
+}
+.input-field .sufix{
+ right:0;
+}
+i.delete{
+ cursor:pointer;
+}

@@ -1,0 +1,55 @@
+{% extends "layout.html" %} {% block head %}
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+<meta name="google-signin-client_id" content="{{ client_id }}" />
+{% endblock %} {% block content %}
+<div id="user" class="guest">Welcome guest, You need to authenticate</div>
+<div class="row">
+  <div class="col s6 offset-s3">
+    <div class="card blue-grey darken-1">
+      <div class="card-content white-text">
+        <span class="card-title">Login To Enter Scout</span>
+        <p>
+          This application will help you configure alerts to your mobile phone,
+          a preferred emergency contact and up to 5 additional contacts. If you
+          have a Nightscout dashboard and your api is enabled for external
+          queries, you can use this application. When your glucose levels are
+          out of range, you will receive an alert call on your mobile as well as
+          and your preferred. If you do not answer the call then a sms is sent
+          to your emergency contact(s).
+        </p>
+        <div class="g-signin2" data-onsuccess="onSignIn"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script language="javascript">
+  function onSignIn(googleUser) {
+    var profile = googleUser.getBasicProfile()
+    if (profile.getId() !== null && profile.getId() !== undefined) {
+      var xhr = new XMLHttpRequest()
+      xhr.open('POST', '{{ site_url|safe }}/login')
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+      xhr.onload = function() {
+        console.log('Signed in as: ' + xhr.responseText)
+        //Authenticated so redirect to index
+        window.location = '{{ site_url|safe }}/'
+      }
+      xhr.send(
+        'idtoken=' +
+          googleUser.getAuthResponse().id_token +
+          '&username=' +
+          profile.getName() +
+          '&email=' +
+          profile.getEmail()
+      )
+    }
+  }
+  /*function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+     console.log('User signed out.');
+     document.getElementById("user").setAttibute("style","display:none");
+    });
+   }*/
+</script>
+{% endblock %}

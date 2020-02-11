@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/materialize.min.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    {% block head %}{% endblock %}
+  </head>
+  <body>
+    <header class="container-fluid">
+      <nav class="teal">
+        <div class="container">
+          <div class="row">
+            <div class="col">
+              <a href="#" class="brand-logo"
+                ><i class="material-icons logo">record_voice_over</i> Scout =
+                Nexmo + Nightscout</a
+              >
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main class="container">
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="page-footer teal">
+      <div class="footer-copyright">
+        <div class="container">
+          <!--This is the hashtag used by the nightscout project :) -->
+          Scout - <a class="brown-text text-lighten-3">#WeAreNotWaiting</a>
+        </div>
+      </div>
+    </footer>
+    <script
+      language="javascript"
+      src="{{ url_for('static', filename='js/materialize.min.js') }}"
+    ></script>
+    {% block script %}{% endblock %}
+  </body>
+</html>

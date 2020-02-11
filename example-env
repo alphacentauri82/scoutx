@@ -1,0 +1,24 @@
+#This is an example environment file. Configure this file according your needs. Rename to .env
+
+#Google Auth
+GOOGLE_CLIENT_ID="YOUR_GOOGLE_AUTH_CLIENT_ID"
+
+#Firebase - Firestore
+FIREBASE_PRIVATE_KEY="./PRIVATE_KEY.json"
+
+#NEXMO
+#Application id and private key are used to generate JWT (Java web tokens) for the voice api
+NEXMO_APPLICATION_ID="NEXMO_APPLICATION_ID"
+NEXMO_PRIVATE_KEY="./NEXMO_PRIVATE_KEY.key"
+#You use api key and secret to the sms api
+NEXMO_API_KEY="NEXMO_API_KEY"
+NEXMO_API_SECRET="NEXMO_API_SECRET"
+NEXMO_NUMBER="NEXMO_VIRTUAL_NUMBER"
+
+#For App purposes
+SITE_URL="https://domain.ext"
+#Aplication ping is 30 seconds. If a call is done then wait a time after call the same number again
+WAIT_AFTER_CALL="120"
+#When the number of failed pings is 60 send a sms to customer / 60 is the equal to 1 hour of intents
+#Of course, you can change this parameter as you wish
+NEXMO_FAILED_PING_SMS="60"

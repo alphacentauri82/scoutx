@@ -1,0 +1,172 @@
+{% extends "layout.html" %} {% block head %}
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+<meta name="google-signin-client_id" content="{{ client_id }}" />
+{% endblock %} {% block content %}
+<div id="user" class="logged">
+  you are logged in as <b>{{ user.username }}</b> -
+  <a id="logout" class="teal-text" href="#" onclick="signOut()">Logout</a>
+</div>
+<div class="row">
+  <div class="col s8 offset-s2">
+    <div class="card blue-grey darken-1">
+      <div class="card-content white-text">
+        <h1 class="card-title">Your Scout Profile</h1>
+        <div class="row">
+          <form id="scout-form" class="col s12" method="POST" action="/">
+            <input
+              type="hidden"
+              name="cmd"
+              value="{{ 'new' if scout == None else 'edit' }}"
+            />
+            {% if scout!=None %}
+            <input type="hidden" name="id" value="{{ scout.id }}" />
+            {% endif %}
+            <div class="row">
+              <div class="col s12 input-field">
+                <input
+                  placeholder="E.g. https://domain.ext/api/v1/entries.json"
+                  value="{{ scout.nightscout_api }}"
+                  id="nightscout_api"
+                  name="nightscout_api"
+                  type="text"
+                  class="validate"
+                  required
+                />
+                <label for="nightscout_api" class="white-text"
+                  >Enter NightScout Api Entries Url (Entries url finish with
+                  <b>entries.json</b>)</label
+                >
+              </div>
+            </div>
+            <div class="row">
+              <div class="col s12 input-field">
+                <i class="material-icons prefix">phone</i>
+                <input
+                  placeholder="E.g. 50588888888"
+                  id="phone"
+                  name="phone"
+                  value="{{ scout.phone }}"
+                  type="tel"
+                  class="validate"
+                  pattern="[0-9]+"
+                  required
+                />
+                <label for="phone" class="white-text"
+                  >Enter your phone number</label
+                >
+              </div>
+            </div>
+            <div class="row">
+              <div class="col s12 input-field">
+                <i class="material-icons prefix">phone</i>
+                <input
+                  placeholder="E.g. 50588888888"
+                  id="emerg_contact"
+                  name="emerg_contact"
+                  value="{{ scout.emerg_contact }}"
+                  type="tel"
+                  class="validate"
+                  pattern="[0-9]+"
+                  required
+                />
+                <label for="emerg_contact" class="white-text"
+                  >Enter emergency contact number</label
+                >
+              </div>
+            </div>
+            <div class="row">
+              <div class="col s12 add-contacts-container">
+                <div class="row">
+                  <div class="col s6">
+                    <label class="white-text"
+                      >Add up to 5 additional emergency contacts:</label
+                    >
+                  </div>
+                  <div class="col s6 add_contact">
+                    <div class="right-align">
+                      <a
+                        onclick="add_contact()"
+                        class="btn waves-effect waves-light red"
+                        ><i class="material-icons">group_add</i></a
+                      >
+                    </div>
+                    <br />
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <div class="contact_numbers" id="contact_numbers"></div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col s12 right-align">
+                <button
+                  class="waves-effect waves-light btn-small"
+                  type="submit"
+                >
+                  <i class="material-icons left">save</i> Save
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block script %}
+<script language="javascript">
+  var contacts_numbers = null;
+  var container = null;
+  var incremental = 0;
+  window.addEventListener('load', function(event){
+    //console.log("page loaded");
+    container = document.getElementById("contact_numbers");
+    contact_numbers = container.getElementsByClassName("contact_number");
+    //The next methods are valid to catch python vars with jinja to javascript
+    //var extra_contacts = {{ scout.extra_contacts|safe if scout else "Array()" }};
+    var extra_contacts = validate({{ scout.extra_contacts|safe }});
+    for(var p=0;p<extra_contacts.length;p++){
+     add_contact(extra_contacts[0]);
+    }
+    //load auth2 for client logout
+    gapi.load('auth2', function() {
+     gapi.auth2.init();
+    });
+    //console.log(contact_numbers.length);
+  });
+  function validate(value){
+   if(value!==null & value!==undefined)
+    return value;
+   else
+    return Array();
+  }
+  function add_contact(value){
+   if(contact_numbers.length < 5){
+    incremental += 1;
+    //M.toast({html: 'All fine, you can more numbers'});
+    var div = document.createElement("div");
+    div.className = 'row contact_number';
+    div.setAttribute('id','id_'+incremental);
+    if(!(value!=null && value!==undefined)){
+     value = "";
+    }
+    div.innerHTML += '<div class="col s12 input-field"><i class="material-icons prefix">contact_phone</i><input placeholder="E.g. 50588888888" name="extra_contacts[]" value="'+value+'" type="tel" class="validate" pattern="[0-9]+"><i class="material-icons prefix sufix delete" onclick="delete_contact(\'id_'+incremental+'\')">delete</i></div>';
+    container.appendChild(div);
+    contact_numbers = container.getElementsByClassName("contact_number");
+   }else{
+    M.toast({html: 'Sorry, You can just add a maximun of 5 contact numbers'});
+   }
+  }
+  function delete_contact(id){
+   contact_number = document.getElementById(id);
+   container.removeChild(contact_number);
+  }
+  function signOut() {
+     var auth2 = gapi.auth2.getAuthInstance();
+     auth2.signOut().then(function () {
+      console.log('User signed out.');
+      window.location = '/logout';
+     });
+  }
+</script>
+{% endblock %}
