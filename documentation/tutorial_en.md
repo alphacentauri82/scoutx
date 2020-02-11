@@ -23,15 +23,15 @@ Scout relies on 4 applications for its operation.
 
 - **Nightscout:** Nightscout (CGM in the Cloud) is an open source, DIY project that allows real time access to a CGM (Continuous Glucose Manager) data via personal website, smartwatch viewers, or apps and widgets available for smartextra_contacts.
 
-Nightscout was developed by parents of children with Type 1 Diabetes and has continued to be developed, maintained, and supported by volunteers. When first implemented, Nightscout was a solution specifically for remote monitoring of Dexcom G4 CGM data. Today, there are Nightscout solutions available for Dexcom G4, Dexcom Share with Android, Dexcom Share/G5 with iOS, Dexcom G6, Abbott Freestyle Libre with MiaoMiao/Blucon and Medtronic. Nightscout also provides browser-based visualization for #openAPS users and Loop users. The goal of the project is to allow remote monitoring of a T1D’s glucose level using existing monitoring devices.
+	Nightscout was developed by parents of children with Type 1 Diabetes and has continued to be developed, 		maintained, and supported by volunteers. When first implemented, Nightscout was a solution specifically for 		remote monitoring of Dexcom G4 CGM data. Today, there are Nightscout solutions available for Dexcom G4, Dexcom 		Share with Android, Dexcom Share/G5 with iOS, Dexcom G6, Abbott Freestyle Libre with MiaoMiao/Blucon and 		Medtronic. Nightscout also provides browser-based visualization for #openAPS users and Loop users. The goal of 		the project is to allow remote monitoring of a T1D’s glucose level using existing monitoring devices.
 
-In turn, nightscout has an API that allows data to be obtained in json or xml format for use in external applications. It is necessary to enable CORS in the user's Nightscout in order to access this information from external domains.
+	In turn, nightscout has an API that allows data to be obtained in json or xml format for use in external 		applications. It is necessary to enable CORS in the user's Nightscout in order to access this information from 		external domains.
 
-You can get more information in the following links: https://nightscout.info and https://github.com/nightscout/cgm-remote-monitor
+	You can get more information in the following links: https://nightscout.info and 	https://github.com/nightscout/cgm-remote-monitor
 
 - **Nexmo:** The Vonage API Platform, provides tools for voice, messaging and phone verification services, allowing developers to embed contextual, programmable communications into mobile apps, websites and business systems, enabling enterprises to easily communicate relevant information to their customers in real time, anywhere in theworld, through text messaging, chat, social media and voice.
 
-In order to use all these amazing services for our app, we need to create an account, create an application, create a virtual number and have sufficient balance to be able to use the service. Check this link for more information: https://developer.nexmo.com/
+	In order to use all these amazing services for our app, we need to create an account, create an application, 		create a virtual number and have sufficient balance to be able to use the service. Check this link for more 		information: https://developer.nexmo.com/
 
 - **Google Auth:** The API that allows us to use the Google authentication service for our web application. More information at https://developers.google.com/identity/protocols/OAuth2
 
@@ -206,7 +206,7 @@ The line `@app.route('/,methods=['GET','POST'])` indicates that every request ei
 Following the Workflow when the user enters the site the user session variable will not exist, therefore `login.html` will be loaded. The next logical step would be to develop the `home.html` jinja template. But before doing that we need to configure the following details:
 
 - Download `materialize` a framework for front-end development based on material design:
-    To access static files (css, js, images, fonts) Flask by default recognises the `static` directory for this purpose. Create this directory from your IDE or from your terminal with `mkdir static`.
+    To access static files (css, js, images, fonts) Flask by default recognises the `static` directory for this purpose. Create this directory from your IDE or from your terminal with `mkdir static`.
 
 - Go to: https://materializecss.com/getting-started.html. Click on download. Unzip the file and move the `css` and`js` directories into the previously created `static` directory. Ideally, keep only the minified versions of the css and js files.
 
@@ -522,7 +522,7 @@ After installing, from the same terminal window and from our app's root director
 
 This command deploys our application to our local server and listens for requests using port 80. With this we should be able to access our app and test if we can log in and log out.
 
-## **Note:** To stop our application, hit _ctrl + c_ in the same terminal window where gunicorn is running.
+**Note:** To stop our application, hit _ctrl+c_ in the same terminal window where gunicorn is running.
 
 # 2. Storing Nightscout settingswith Firebase/Firestore
 
@@ -548,14 +548,14 @@ In this section we will build a simple interface where our user can add the foll
 }
 ```
 
-## Adding Firebase to our project
+## Adding Firebase Firestore to our project
 
 - Go to https://firebase.google.com/
 - Login with your Google or GSuite account
 - Click on _Go to Console_
 - Click on _Add project_. If our previously created project used for Google auth does not appear on the list, click on _Add project_ . We should see our project name listed on _Enter the name of your project_ . Select it and click on _Continue_, Provide additional information for the next steps and when finished click on **Create project**
 - On the Firebase console page, click on `authentication` and in the `sign in method` tab, enable `Google`.
-- Click on `Database > Tab Rules`. Modify the existing rule as follows:
+- Click on Database, and select FIRESTORE. Then `Database > Tab Rules`. Modify the existing rule as follows:
 
 ```javascript
 rules_version = '2';
@@ -575,9 +575,9 @@ This is to make sure only logged in users have access to our application.
 Once our project is set up on the Firebase console, we have to generate a Firebase key:
 
 - Login to https://console.firebase.google.com/
-- Click on _Project Overview> Project configuration_ and select the _Service account_ tab
+- Click on _Project Overview> Project settings_ and select the _Service account_ tab
 - Click on the generate new private key option
-- Save the json file in our application's root directory. You can rename that file to whatever you want. I used: `super_private_ley.json`
+- Save the json file in our application's root directory. You can rename that file to whatever you want. I used: `super_private_key.json`
 
 The next step is to add the name of our private key file to our `.env`, let's add the following line:
 
@@ -1488,9 +1488,7 @@ pip install -r requirements.txt
 
 After running the above command, we are ready to deploy our application!!.
 
-# How to deploy our application on Google Cloud Platform
-
-## From Google
+# 4. Deploying our application on Google Cloud Platform
 
 In this section we will describe the procedure to deploy our application using **Google Cloud Platform**. Proceed to https://console.cloud.google.com and authenticate.
 
