@@ -4,7 +4,7 @@ import os
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 from flask_cors import CORS
 from google.oauth2 import id_token
-#from google.auth.transport import requests
+# from google.auth.transport import requests
 import google.auth.transport.requests
 import requests
 from requests.auth import HTTPBasicAuth
@@ -112,7 +112,7 @@ def handle_nightscout_failed_pings(to, api_url, username):
         nightscout_failed_pings[to] = 1
     else:
         nightscout_failed_pings[to] += 1
-    #print('Intent: {0} for {1}'.format(nightscout_failed_pings[to],to))
+    # print('Intent: {0} for {1}'.format(nightscout_failed_pings[to],to))
     if nightscout_failed_pings[to] == int(os.getenv("NEXMO_FAILED_PING_SMS")):
         response = requests.post(
             'https://api.nexmo.com/v0.1/messages',
@@ -192,7 +192,7 @@ def call_glucose_alert(to, glucose):
             print("The number {0} was called recently.. Please wait a little longer: {1}".format(
                 to, int(time.time()-last_call[to])))
             return False
-    #print('Call {0} {1}'.format(to, glucose))
+    # print('Call {0} {1}'.format(to, glucose))
     last_call[to] = time.time()
 
     # We make our call using the voice API
@@ -239,16 +239,16 @@ def events():
             # This variable is updated by the daemon process.. that run in another context
             # Not the flask context, for that reason we are going to use firebase to get
             # fresh data
-            #uscout = [active_scout for active_scout in active_scouts if active_scout['phone'] == phone]
+            # uscout = [active_scout for active_scout in active_scouts if active_scout['phone'] == phone]
             uscout = nightscouts.getby_personal_phone(phone)
             if uscout != None:
                 entries = requests.get(uscout["nightscout_api"]).json()
                 glucose = entries[0]['sgv']
                 sms_glucose_alert(
                     uscout["emerg_contact"], uscout["username"], glucose)
-                #print('sms simulation to: {0} {1} {2}'.format(uscout["emerg_contact"], uscout["username"], glucose))
+                # print('sms simulation to: {0} {1} {2}'.format(uscout["emerg_contact"], uscout["username"], glucose))
                 for phone in uscout["extra_contacts"]:
-                    #print('sms simulation to: {0} {1} {2}'.format(phone, uscout["username"], glucose))
+                    # print('sms simulation to: {0} {1} {2}'.format(phone, uscout["username"], glucose))
                     sms_glucose_alert(phone, uscout["username"], glucose)
     return "Event Received"
 
@@ -274,9 +274,15 @@ def refresh_scouts(id):
     # Import Scout models for thread
     import models
     from models import model, scouts, scout
-    nightscouts = scouts()
-    active_scouts = nightscouts.get_all()
-    print("Refresh Scouts Job " + id + "")
+
+
+try:
+        nightscouts = scouts()
+        active_scouts = nightscouts.get_all()
+        print("Refresh Scouts Job " + id + "")
+    except:
+        print("Error when refresh scouts")
+
 
 # This job is executed certain periods of time to get the last nightscout entry
 # If the glucose is not between the range then make a call to the personal phone notifiying the level
