@@ -277,11 +277,12 @@ def refresh_scouts(id):
 
 
 try:
-        nightscouts = scouts()
-        active_scouts = nightscouts.get_all()
-        print("Refresh Scouts Job " + id + "")
-    except:
-        print("Error when refresh scouts")
+    nightscouts = scouts()
+    active_scouts = nightscouts.get_all()
+    print("Refresh Scouts Job " + id + "")
+
+except:
+    print("Error when refresh scouts")
 
 
 # This job is executed certain periods of time to get the last nightscout entry
