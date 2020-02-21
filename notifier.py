@@ -21,12 +21,14 @@ import signal
 # We will use this to get a unique identifier for the schedule process
 import uuid
 
-# Import Scout models
-import models
-from models import model, scouts, scout
-
 # Init the flask App
 app = Flask(__name__)
+
+# Import Scout models for the app context
+with app.app_context():
+    import models
+    from models import model, scouts, scout
+
 # enable cors
 cors = CORS(app)
 # define secret_key to flask app to manage sessions
@@ -36,16 +38,13 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 envpath = join(dirname(__file__), "./.env")
 load_dotenv(envpath)
 
-# Load scouts
-nightscouts = scouts()
-
 # Load nexmo client for global usage in server
 client = nexmo.Client(
     application_id=os.getenv('NEXMO_APPLICATION_ID'),
     private_key=os.getenv('NEXMO_PRIVATE_KEY')
 )
 
-active_scouts = nightscouts.get_all()
+active_scouts = []
 
 # Login Logic
 
@@ -59,7 +58,8 @@ def get_session(key):
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    global scouts
+    # Create scouts instance
+    nightscouts = scouts()
     if get_session("user") != None:
         if request.method == "POST":
             extra_contacts = request.form.getlist('extra_contacts[]')
@@ -229,6 +229,8 @@ def events():
     global client
     global active_scouts
     req = request.get_json()
+    # Create scouts instance
+    nightscouts = scouts()
     print(req)
     if "status" in req:
         if req["status"] == "completed":
@@ -269,6 +271,10 @@ def signal_handler(signum, frame):
 
 def refresh_scouts(id):
     global active_scouts
+    # Import Scout models for thread
+    import models
+    from models import model, scouts, scout
+    nightscouts = scouts()
     active_scouts = nightscouts.get_all()
     print("Refresh Scouts Job " + id + "")
 
