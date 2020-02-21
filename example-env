@@ -7,9 +7,9 @@ GOOGLE_CLIENT_ID="YOUR_GOOGLE_AUTH_CLIENT_ID"
 FIREBASE_PRIVATE_KEY="./PRIVATE_KEY.json"
 
 #NEXMO
-#Application id and private key are used to generate JWT (Java web tokens) for the voice api
+#Application id and private key are used to generate JWT for the voice api
 NEXMO_APPLICATION_ID="NEXMO_APPLICATION_ID"
-NEXMO_PRIVATE_KEY="./NEXMO_PRIVATE_KEY.key"
+NEXMO_PRIVATE_KEY="./NEXMO_PRIVATE_KEY"
 #You use api key and secret to the sms api
 NEXMO_API_KEY="NEXMO_API_KEY"
 NEXMO_API_SECRET="NEXMO_API_SECRET"
