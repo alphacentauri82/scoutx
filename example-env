@@ -22,3 +22,8 @@ WAIT_AFTER_CALL="120"
 #When the number of failed pings is 60 send a sms to customer / 60 is the equal to 1 hour of intents
 #Of course, you can change this parameter as you wish
 NEXMO_FAILED_PING_SMS="60"
+
+# If after X seconds NIGHTSCOUT entries still not updating  sms is sent to user notifying about$
+NIGHTSCOUT_NOT_UPDATE_SECONDS = "1800"
+# After sending the sms if the issue persist, wait for X intents to send the next sms
+WAIT_AFTER_SMS_MARK="30"

@@ -13,6 +13,10 @@ from dotenv import load_dotenv
 
 import schedule
 import time
+# For UTC ISOFORMAT CALCULATIONS - Nightscout use another isoformat so we use the next modules to
+# convert propertly and get most exact calculations
+from datetime import datetime
+import calendar
 # We are going to use this to create an individual Thread for our Job
 from multiprocessing import Process
 # We detect if the user press ctl+c to stop the application
@@ -100,7 +104,50 @@ def logout():
     return redirect(url_for('home', _external=True, _scheme='https'))
 
 
-# handle the number of failed intents to customer nightscout api. If the number of intents exceeds the
+# handle the notifications when nightscout api is not sending new entries.
+# when this mark is 1 the sms is sent, when the mark is equal to WAIT_AFTER_SMS_MARK the mark is restarted to 1
+nightscout_failed_update_wait_mark = {}
+
+
+def handle_nightscout_failed_update(to, api_url, username):
+    global client
+    global nightscout_failed_update_wait_mark
+    if to not in nightscout_failed_update_wait_mark:
+        nightscout_failed_update_wait_mark[to] = 1
+    else:
+        nightscout_failed_update_wait_mark[to] += 1
+
+    if nightscout_failed_update_wait_mark[to] == 1:
+        response = requests.post(
+            'https://api.nexmo.com/v0.1/messages',
+            auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
+                               os.getenv("NEXMO_API_SECRET")),
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            json={
+                "from": {
+                    "type": "sms",
+                    "number": os.getenv("NEXMO_NUMBER"),
+                },
+                "to": {
+                    "type": "sms",
+                    "number": to
+                },
+                "message": {
+                    "content": {
+                        "type": "text",
+                        "text": "Dear {0} the nightscout api is not retrieving updated entries, please check your device or your service to solve any issues".format(username)
+                    }
+                }
+            }
+        ).json()
+    elif nightscout_failed_update_wait_mark[to] == int(os.getenv("WAIT_AFTER_SMS_MARK")):
+        nightscout_failed_update_wait_mark[to] = 0
+
+
+# handle the number of failed attempts to customer nightscout api. If the number of intents exceeds the
 # limit then a sms is sent to the customer
 nightscout_failed_pings = {}
 
@@ -269,8 +316,12 @@ def signal_handler(signum, frame):
     raise ApplicationKilledException("Killing signal detected")
 
 
+start_scouts = False
+
+
 def refresh_scouts(id):
     global active_scouts
+    global start_scouts
     # Import Scout models for thread
     import models
     from models import model, scouts, scout
@@ -280,6 +331,8 @@ try:
     nightscouts = scouts()
     active_scouts = nightscouts.get_all()
     print("Refresh Scouts Job " + id + "")
+    if start_scouts == False:
+        start_scouts = True
 
 except:
     print("Error when refresh scouts")
@@ -295,13 +348,38 @@ def job(id):
     # Calling nemo global client variable
     global client
     global active_scouts
+    global nightscout_failed_pings
+    global nightscout_failed_update_wait_mark
+    global start_scouts
+
     print("Alerts Job " + id + "")
     if active_scouts != None:
+        if start_scouts == False:
+            refresh_scouts('Starting_Scouts')
         for active_scout in active_scouts:
             print(active_scout["nightscout_api"])
             try:
                 entries = requests.get(active_scout["nightscout_api"]).json()
                 glucose = entries[0]['sgv']
+                # No failed connection, so initialise the failed pings to zero for the active user
+                nightscout_failed_pings[active_scout["phone"]] = 0
+                # Check if the last NIGHTSCOUT entry doesn't exceed the NIGHTSCOUT NOT_UPDATE SECONDS limit.
+                # In other words, this code verifies if nightscout entries get updates
+                current_isoformat_datetime = datetime.utcnow().isoformat()
+                nightscout_datetime = entries[0]['dateString']
+                # Little trick to make UTC isodate from nodejs moment library compatible with python isoformat
+                nightscout_isoformat_datetime = nightscout_datetime.replace(
+                    "Z", "+00:00")
+                # Difference in seconds between current time and last nightscout entry
+                time_difference = calendar.timegm(datetime.fromisoformat(current_isoformat_datetime).utctimetuple(
+                )) - calendar.timegm(datetime.fromisoformat(nightscout_isoformat_datetime).utctimetuple())
+                print(time_difference, " ", os.getenv(
+                    "NIGHTSCOUT_NOT_UPDATE_SECONDS"))
+                if time_difference > int(os.getenv("NIGHTSCOUT_NOT_UPDATE_SECONDS")):
+                    raise Exception("entry_update")
+                else:
+                    nightscout_failed_update_wait_mark[active_scout["phone"]] = 0
+
                 # We add a dynamic attribute called glucose to pass glucose info to events url
                 if 70 <= glucose <= 240:
                     print("{0} is inside the range for {1}".format(
@@ -309,11 +387,19 @@ def job(id):
                 else:
                     print("Executing emergency call and loading sms NCCO if needed")
                     call_glucose_alert(active_scout["phone"], glucose)
-            except:
-                handle_nightscout_failed_pings(
-                    active_scout["phone"], active_scout["nightscout_api"], active_scout["username"])
-                print("Server could not establish connection with " +
-                      active_scout["nightscout_api"])
+            except KeyError:
+                print("Key error")
+            except Exception as instance:
+                if instance.args[0] == 'entry_update':
+                    handle_nightscout_failed_update(
+                        active_scout["phone"], active_scout["nightscout_api"], active_scout["username"])
+                    print(
+                        "No updated entries for user, executing the failed update handler for user " + active_scout["username"])
+                else:
+                    handle_nightscout_failed_pings(
+                        active_scout["phone"], active_scout["nightscout_api"], active_scout["username"])
+                    print("Server could not establish connection with " +
+                          active_scout["nightscout_api"])
 
 
 # Manage individual schedule Thread Loop
