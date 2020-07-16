@@ -16,6 +16,13 @@ Although the initial state of this app is very basic, it's work in progress and 
 
 ![Scout Dashboard](dashboard.png)
 
+## Contributing
+
+All contributions are welcome. Make sure you follow the [code of conduct](CODE_OF_CONDUCT.MD) in this repository. 
+
+### EuroPython 2020 #Tech4Good Challenge
+
+Check [THIS README](https://github.com/nexmo-community/nexmo-scout) for instructions!!
 
 
 
