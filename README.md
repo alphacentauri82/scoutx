@@ -3,7 +3,12 @@
 An app to notify your preferred emergency contacts in case your blood glucose values from Nightscout are  out of range.
 This app uses the Nexmo messages and voice api's and is written in Flask.
 
-If your values are out of range (significantly low or high) You will get a phone call alerting you and reading your blood glucose over the phone. In the event of not answering the call your preferred emergency contact(s) will receive an SMS notifying them you are out of range.
+If your values are out of range (significantly low or high) You will get a phone call alerting you and reading your blood glucose over the phone. In the event of not answering the call your preferred emergency contact(s) will receive an SMS notifying them you are out of range
+
+## EuroPython 2020 #Tech4Good Challenge
+
+Check [THIS README](https://nexmo.dev/europython2020) for instructions!!
+
 
 ## Context
 
@@ -20,9 +25,6 @@ Although the initial state of this app is very basic, it's work in progress and 
 
 All contributions are welcome. Make sure you follow the [code of conduct](CODE_OF_CONDUCT.MD) in this repository. 
 
-### EuroPython 2020 #Tech4Good Challenge
-
-Check [THIS README](https://github.com/nexmo-community/nexmo-scout) for instructions!!
 
 
 
