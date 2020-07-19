@@ -23,7 +23,7 @@ Although the initial state of this app is very basic, it's work in progress and 
 
 ## Heroku Deploy
 
-Before you start deploying your App using the Heroku Deploy Button. You need to get the nexmo credentials from [https://dashboard.nexmo.com/](Vonage dashboard). Using the firebase console get the [https://firebase.google.com/](Firebase database secrets) and from google cloud get the [https://console.cloud.google.com/apis/credentials](google client id) needed for auth using the client. Two of this credentials are **Files**, the `firebase database secrets` and the `application private key`. You need to put them temporary in your repo to perform the deploy. After that you can remove them.
+Before you start deploying your App using the Heroku Deploy Button. You need to get the nexmo credentials from [Vonage dashboard](https://dashboard.nexmo.com/). Using the firebase console get the [Firebase database secrets](https://firebase.google.com/) and from google cloud get the [google client id](https://console.cloud.google.com/apis/credentials) needed for auth using the client. Two of this credentials are **Files**, the `firebase database secrets` and the `application private key`. You need to put them temporary in your repo to perform the deploy. After that you can remove them.
 
 When you click the Heroku deploy button you will see something like this:
 
