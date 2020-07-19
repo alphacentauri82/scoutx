@@ -28,4 +28,4 @@ All contributions are welcome. Make sure you follow the [code of conduct](CODE_O
 
 ## Heroku Deploy
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://gitlab.com/codeonrocks/client/nexmo-nsnotifier/-/tree/add-heroku-deploy-button-readme)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/melveg/nexmo-scout/tree/add-heroku-deploy-button-readme)
