@@ -37,8 +37,5 @@
           "description": "When the number of failed pings is 60 send a sms to customer",
           "value": "60"
       }
-    },
-    "scripts": {
-        "postdeploy": "gunicorn -b :$PORT notifier:app"
     }
   }
