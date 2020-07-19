@@ -21,11 +21,16 @@ Although the initial state of this app is very basic, it's work in progress and 
 
 ![Scout Dashboard](dashboard.png)
 
+## Heroku Deploy
+
+Before you start deploying your App using the Heroku Deploy Button. You need to get the nexmo credentials from [https://dashboard.nexmo.com/](Vonage dashboard). Using the firebase console get the [https://firebase.google.com/](Firebase database secrets) and from google cloud get the [https://console.cloud.google.com/apis/credentials](google client id) needed for auth using the client. Two of this credentials are **Files**, the `firebase database secrets` and the `application private key`. You need to put them temporary in your repo to perform the deploy. After that you can remove them.
+
+When you click the Heroku deploy button you will see something like this:
+
+![Heroku deploy](HerokuDeployButton.PNG)
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/melveg/nexmo-scout/tree/add-heroku-deploy-button-readme)
+
 ## Contributing
 
 All contributions are welcome. Make sure you follow the [code of conduct](CODE_OF_CONDUCT.MD) in this repository. 
-
-
-## Heroku Deploy
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/melveg/nexmo-scout/tree/add-heroku-deploy-button-readme)
