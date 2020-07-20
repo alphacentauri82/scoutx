@@ -45,7 +45,7 @@ load_dotenv(envpath)
 # Load nexmo client for global usage in server
 client = nexmo.Client(
     application_id=os.getenv('NEXMO_APPLICATION_ID'),
-    private_key=os.getenv('NEXMO_PRIVATE_KEY')
+    private_key=os.getenv('NEXMO_PRIVATE_KEY').replace('\\n','\n')
 )
 
 active_scouts = []
