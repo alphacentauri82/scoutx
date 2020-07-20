@@ -1,7 +1,7 @@
 # Load Firebase configuration
 from firebase_admin import firestore
 import firebase_admin
-import os
+import os, json
 from firebase_admin import credentials
 from os.path import join, dirname
 from dotenv import load_dotenv
@@ -10,8 +10,15 @@ from dotenv import load_dotenv
 envpath = join(dirname(__file__), "./.env")
 load_dotenv(envpath)
 
+firebase_private_key = os.getenv("FIREBASE_PRIVATE_KEY")
+
+#Verify if private key is not a file
+if not os.path.isfile(firebase_private_key):
+    #Convert json string into dict
+    firebase_private_key = json.loads(firebase_private_key)
+
 # get the credentials
-credits = credentials.Certificate(os.getenv("FIREBASE_PRIVATE_KEY"))
+credits = credentials.Certificate(firebase_private_key)
 # Init the application
 firebase_admin.initialize_app(credits)
 # use databaseUrl parameter when using real time database
