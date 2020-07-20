@@ -2,7 +2,7 @@
     "name": "Heroku: ns-notifier",
     "description": "A Flask App that send sms alerts about glucose level to your family or friends.",
     "image": "heroku/python",
-    "repository": "https://gitlab.com/codeonrocks/client/nexmo-nsnotifier",
+    "repository": "https://github.com/nexmo-community/nexmo-scout",
     "keywords": ["python", "flask" ],
     "env": {
       "GOOGLE_CLIENT_ID": {
