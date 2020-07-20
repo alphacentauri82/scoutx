@@ -21,11 +21,11 @@ Although the initial state of this app is very basic, it's work in progress and 
 
 ![Scout Dashboard](dashboard.png)
 
-## Heroku Deploy
+## Deploying to Heroku
 
-Before you start deploying your App using the Heroku Deploy Button. You need to get the nexmo credentials from [Vonage dashboard](https://dashboard.nexmo.com/). Using the firebase console get the [Firebase database secrets](https://firebase.google.com/) and from google cloud get the [google client id](https://console.cloud.google.com/apis/credentials) needed for auth using the client. Two of this credentials could be `filepaths`, but this is not useful at the moment of deploying and application from repository because of security reasons. That's why we are going to pass the `nexmo application private key` in a single line as a environment var and the `firebase database secrets` also as a json string in a single line.
+Before you start deploying your App using the Heroku Deploy Button. You need to get the nexmo credentials from [Vonage dashboard](https://dashboard.nexmo.com/). Using the firebase console get the [Firebase database secrets](https://firebase.google.com/) and from google cloud get the [google client id](https://console.cloud.google.com/apis/credentials) needed for auth using the client. Two of this credentials could be `filepaths`, but this is not useful at the moment of deploying the application from a repository because of security reasons. That's why we are going to pass the `nexmo application private key` in a single line as a environment variable and the `firebase database secrets` also as a json string in a single line.
 
-For nexmo, just download your private key file and execute the next command:
+Download your private key file from the communications dashboard and run the following command:
 
 ```
 awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ./private.key
@@ -40,9 +40,9 @@ For the `firebase secrets json` file just put the content in a single line. Copy
 
 ```
 
-When click the next button:
+When clicking on the the deploy button:
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/melveg/nexmo-scout/tree/add-heroku-deploy-button-readme)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/nexmo-community/nexmo-scout)
 
 You will see something like this:
 
