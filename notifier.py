@@ -271,10 +271,69 @@ def call_glucose_alert(to, glucose):
         return False
 
 
+def sms_request_glucose_level(args, glucose):
+    global client
+
+    args = ast.literal_eval(json.dumps(args))
+    
+    # Parse incoming values
+    keyword = args['keyword'][0]
+    to = args["msisdn"][0]
+    response = None
+
+    if keyword == "NIGHTSCOUT":
+        # "msg" stores the response to be sent\
+        msg = "Hey, the latest blood glucose level entry: {glucose}".format(glucose=glucose)
+
+        response = requests.post(
+        'https://api.nexmo.com/v0.1/messages',
+        auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
+                            os.getenv("NEXMO_API_SECRET")),
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        json={
+            "from": {
+                "type": "sms",
+                "number": os.getenv('NEXMO_NUMBER')
+            },
+            "to": {
+                "type": "sms",
+                "number": to
+            },
+            "message": {
+                "content": {
+                    "type": "text",
+                    "text": msg
+                }
+            }
+        }).json()
+
+    if response is not None and "message_uuid" in response:
+        return True
+    else:
+        return False
+
+
+@app.route('/webhooks/inbound-messages', methods=["POST"])
+def inbound_sms():
+    args = dict(request.form)
+
+    if args.get('status'):
+        return args['status']
+
+    sms_request_glucose_level(args, glucose)
+
+    return "Message Received"
+
+
 @app.route('/webhooks/events', methods=["POST", "GET"])
 def events():
     global client
     global active_scouts
+    global glucose
+
     req = request.get_json()
     # Create scouts instance
     nightscouts = scouts()
