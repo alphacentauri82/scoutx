@@ -1,0 +1,41 @@
+{
+    "name": "Heroku: ns-notifier",
+    "description": "A Flask App that send sms alerts about glucose level to your family or friends.",
+    "image": "heroku/python",
+    "repository": "https://github.com/nexmo-community/nexmo-scout",
+    "keywords": ["python", "flask" ],
+    "env": {
+      "GOOGLE_CLIENT_ID": {
+        "description": "The google auth client id."
+      },
+      "FIREBASE_PRIVATE_KEY": {
+          "description":"A json file with the firebase credentials."
+      },
+      "NEXMO_APPLICATION_ID": {
+          "description": "The application id, get this in the vonage dashboard for nexmo > inside the application settings."
+      },
+      "NEXMO_PRIVATE_KEY": {
+        "description": "The private key path, you can download this in the vonage dashboard for nexmo > inside the application settings"
+      },
+      "NEXMO_API_KEY": {
+          "description": "The nexmo api key. Available in the user settings section on the vonage dashboard for nexmo"
+      },
+      "NEXMO_API_SECRET": {
+          "description": "The api secret, also available in the user settings section on the vonage dashboard for nexmo"
+      },
+      "NEXMO_NUMBER": {
+          "description": "Your nexmo number"
+      },
+      "SITE_URL": {
+          "description": "Your heroku main url"
+      },
+      "WAIT_AFTER_CALL": {
+          "description": "If a call is done then wait a time after call the same number again",
+          "value": "120"
+      },
+      "NEXMO_FAILED_PING_SMS": {
+          "description": "When the number of failed pings is 60 send a sms to customer",
+          "value": "60"
+      }
+    }
+  }
