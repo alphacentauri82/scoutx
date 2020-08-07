@@ -8,6 +8,12 @@ This app uses the Nexmo messages and voice api's and is written in Flask.
 
 If your values are out of range (significantly low or high) You will get a phone call alerting you and reading your blood glucose over the phone. In the event of not answering the call your preferred emergency contact(s) will receive an SMS notifying them you are out of range
 
+### Send SMS to get BG Data (Thanks to [@mariacarlinahernandez](https://github.com/mariacarlinahernandez))
+
+The endpoint defined to manage the SMS Webhook is: /webhooks/inbound-messages
+
+To guarantee the functionality of the integration, users have to send the following message to the number associated with the application -> "Nightscout return the latest blood glucose level entry"
+
 ## EuroPython 2020 #Tech4Good Challenge
 
 Check [THIS README](https://nexmo.dev/europython2020) for instructions!!
