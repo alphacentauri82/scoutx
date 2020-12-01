@@ -15,9 +15,9 @@ The endpoint defined to manage the SMS Webhook is: /webhooks/inbound-messages
 
 To guarantee the functionality of the integration, users have to send the following message to the number associated with the application -> "Nightscout return the latest blood glucose level entry"
 
-## EuroPython 2020 #Tech4Good Challenge
+##  #Tech4Good Challenge
 
-Check [THIS README](https://nexmo.dev/europython2020) for instructions!!
+Check [THIS README](https://nexmo.dev/thech4good) for instructions!!
 
 
 ## Context
