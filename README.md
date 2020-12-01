@@ -1,8 +1,8 @@
 # Scout: Nexmo + Nightscout
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/nexmo-community/nexmo-scout)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/alphacentauri82/scout)
 
-(Thanks to [@melveg](https://github.com/melveg) for his continued support and contributions to this project 💜)
+(Thanks to [@melveg](https://github.com/melveg) for his continued support and contributions to this project 💜 )
 
 An app to notify your preferred emergency contacts in case your blood glucose values from Nightscout are  out of range.
 This app uses the Nexmo messages and voice api's and is written in Flask.
