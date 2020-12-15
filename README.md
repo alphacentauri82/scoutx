@@ -2,23 +2,18 @@
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/alphacentauri82/scout)
 
-(Thanks to [@melveg](https://github.com/melveg) for his continued support and contributions to this project 💜 )
+- [Short Description](#short-description)
+- [Context](#context)
+- [Roadmap](#roadmap)
+- [How to](#how-to-build-this-app)
+- [Deploying to Heroku](#deploying-to-heroku)
 
+
+## Short Description
 An app to notify your preferred emergency contacts in case your blood glucose values from Nightscout are  out of range.
-This app uses the Nexmo messages and voice api's and is written in Flask.
+This app uses the Vonage messages and voice api's and is written in Flask.
 
 If your values are out of range (significantly low or high) You will get a phone call alerting you and reading your blood glucose over the phone. In the event of not answering the call your preferred emergency contact(s) will receive an SMS notifying them you are out of range
-
-### Send SMS to get BG Data (Thanks to [@mariacarlinahernandez](https://github.com/mariacarlinahernandez))
-
-The endpoint defined to manage the SMS Webhook is: /webhooks/inbound-messages
-
-To guarantee the functionality of the integration, users have to send the following message to the number associated with the application -> "Nightscout return the latest blood glucose level entry"
-
-##  #Tech4Good Challenge
-
-Check [THIS README](https://nexmo.dev/thech4good) for instructions!!
-
 
 ## Context
 
@@ -30,6 +25,31 @@ I have type 1 diabetes. With all the amazing open source initiatives, this is a 
 Although the initial state of this app is very basic, it's work in progress and you're more than welcome to contribute. The idea is to add more configuration options and improve the UI.
 
 ![Scout Dashboard](dashboard.png)
+
+## Roadmap
+
+This project has evolved a lot since it was first developed. The current roadmap includes the following: 
+✅ Available
+🚧 Work in progress
+
+- ✅ **Scout:** A Python app that reads data from users CGM dashboard (an OSS solution called nightscout receiving data from CGM sensors). In here you configure your own number, an emergency contact and up to 5 additional emergency contact numbers. If blood sugar levels are out of norm, it will call you first -most people can get warning of a low like that- and if you don’t pick up, it will call your emergency contact, if the first one doesn’t pick up, it goes through all of them. Should no one pick up, they will all get a text message alerting about the situation.
+
+- 🚧 A better and cheaper DIY IoT component(a revision of [LimiTTer](https://github.com/JoernL/LimiTTer) to add to Abbot Freestyle libre 2 sensors to turn them into a continuous glucose monitors. These are particularly cheaper and are the choice for diabetics in LATAM.
+
+- 🚧  **Scout Tracker:** GPS LoRa tracke with a WisBlock, I can pair the data from my monitoring app and broadcast through LoRaWan. Removing the dependence on mobile internet. If I’m out of range or in a remote area I can keep broadcasting my blood glucose data, which works with the python app but also adds GPS tracking. If levels are out of norm, the calls will happen but all contacts will get a message with precise location in case of emergency.
+I have learned so much throughout this year and it’s definitely a privilege to be able to help the DIY diabetes community. This is the community that saved me from having to wake up everyday at 2am, the people who helped me handle calculating ratios etc.
+When a person is diagnosed, doctors just give you a sliding scale and you have to figure out your ratios in a trial and error basis which causes a lot of horrible lows, until you figure out the right amount of insulin, and even then, this constantly changes so we are never in full control. Now with all these monitoring tools we can prevent lows/higga which are dangerous (you can die) and stay within range for most of the time.
+
+----------
+## How to build this app
+
+[Tutorial here!!](https://nexmo.dev/nightscout)
+
+### Send SMS to get BG Data 
+
+The endpoint defined to manage the SMS Webhook is: /webhooks/inbound-messages
+
+To guarantee the functionality of the integration, users have to send the following message to the number associated with the application -> "Nightscout return the latest blood glucose level entry"
 
 ## Deploying to Heroku
 
@@ -58,7 +78,10 @@ You will see something like this:
 
 ![Heroku deploy](HerokuDeployButton.PNG)
 
-Please fill the fields with the corresponding data. 
+## Giving Thanks
+
+Thanks to [@melveg](https://github.com/melveg) for his continued support and contributions to this project 💜 
+Thanks to [@mariacarlinahernandez](https://github.com/mariacarlinahernandez) for the SMS to get BG Data feature 💜
 
 ## Contributing
 
