@@ -7,6 +7,8 @@
 - [Roadmap](#roadmap)
 - [How to](#how-to-build-this-app)
 - [Deploying to Heroku](#deploying-to-heroku)
+- [Giving thanks](#giving-thanks)
+- [Contributing](#contributing)
 
 
 ## Short Description
@@ -83,6 +85,7 @@ You will see something like this:
 ## Giving Thanks
 
 Thanks to [@melveg](https://github.com/melveg) for his continued support and contributions to this project 💜 
+
 Thanks to [@mariacarlinahernandez](https://github.com/mariacarlinahernandez) for the SMS to get BG Data feature 💜
 
 ## Contributing
