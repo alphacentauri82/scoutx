@@ -29,8 +29,9 @@ Although the initial state of this app is very basic, it's work in progress and 
 ## Roadmap
 
 This project has evolved a lot since it was first developed. The current roadmap includes the following: 
-✅ Available
-🚧 Work in progress
+
+- ✅ Available
+- 🚧 Work in progress
 
 - ✅ **Scout:** A Python app that reads data from users CGM dashboard (an OSS solution called nightscout receiving data from CGM sensors). In here you configure your own number, an emergency contact and up to 5 additional emergency contact numbers. If blood sugar levels are out of norm, it will call you first -most people can get warning of a low like that- and if you don’t pick up, it will call your emergency contact, if the first one doesn’t pick up, it goes through all of them. Should no one pick up, they will all get a text message alerting about the situation.
 
