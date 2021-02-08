@@ -88,6 +88,8 @@ Thanks to [@melveg](https://github.com/melveg) for his continued support and con
 
 Thanks to [@mariacarlinahernandez](https://github.com/mariacarlinahernandez) for the SMS to get BG Data feature 💜
 
+I'm super honoured for all the support and help from [The Nightscout Foundation](https://www.nightscoutfoundation.org/), [Parley Labs](https://parleylabs.com/) and [Helium](https://helium.com) - Making it possible to get the necessary equipment to assemble more trackers and test connectivity with #ThePeoplesNetwork. From the bottom of my heart: thank you!
+
 ## Contributing
 
 All contributions are welcome. Make sure you follow the [code of conduct](CODE_OF_CONDUCT.MD) in this repository. 
