@@ -1,4 +1,4 @@
-# Scout
+# ScoutX
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/alphacentauri82/scout)
 
@@ -36,11 +36,11 @@ This project has evolved a lot since it was first developed. The current roadmap
 
 🚧 Work in progress
 
-- ✅ **Scout:** A Python app that reads data from users CGM dashboard (an OSS solution called nightscout receiving data from CGM sensors). In here you configure your own number, an emergency contact and up to 5 additional emergency contact numbers. If blood sugar levels are out of norm, it will call you first -most people can get warning of a low like that- and if you don’t pick up, it will call your emergency contact, if the first one doesn’t pick up, it goes through all of them. Should no one pick up, they will all get a text message alerting about the situation.
+- ✅ **ScoutX:** A Python app that reads data from users CGM dashboard (an OSS solution called nightscout receiving data from CGM sensors). In here you configure your own number, an emergency contact and up to 5 additional emergency contact numbers. If blood sugar levels are out of norm, it will call you first -most people can get warning of a low like that- and if you don’t pick up, it will call your emergency contact, if the first one doesn’t pick up, it goes through all of them. Should no one pick up, they will all get a text message alerting about the situation.
 
 - 🚧 A better and cheaper DIY IoT component(a revision of [LimiTTer](https://github.com/JoernL/LimiTTer) to add to Abbot Freestyle libre 2 sensors to turn them into a continuous glucose monitors. These are particularly cheaper and are the choice for diabetics in LATAM.
 
-- 🚧  **Scout Tracker:** GPS LoRa tracker with a WisBlock, I can pair the data from my monitoring app and broadcast through LoRaWan. Removing the dependence on mobile internet. If I’m out of range or in a remote area I can keep broadcasting my blood glucose data, which works with the python app but also adds GPS tracking. If levels are out of norm, the calls will happen but all contacts will get a message with precise location in case of emergency.
+- 🚧  **ScoutX Tracker:** GPS LoRa tracker with a WisBlock, I can pair the data from my monitoring app and broadcast through LoRaWan. Removing the dependence on mobile internet. If I’m out of range or in a remote area I can keep broadcasting my blood glucose data, which works with the python app but also adds GPS tracking. If levels are out of norm, the calls will happen but all contacts will get a message with precise location in case of emergency.
 I have learned so much throughout this year and it’s definitely a privilege to be able to help the DIY diabetes community. This is the community that saved me from having to wake up everyday at 2am, the people who helped me handle calculating ratios etc.
 When a person is diagnosed, doctors just give you a sliding scale and you have to figure out your ratios in a trial and error basis which causes a lot of horrible lows, until you figure out the right amount of insulin, and even then, this constantly changes so we are never in full control. Now with all these monitoring tools we can prevent lows/highs which are dangerous (you can die) and stay within range for most of the time.
 
