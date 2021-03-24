@@ -34,7 +34,7 @@ PyJWT==1.7.1
 python-dotenv==0.10.5
 pytz==2019.3
 requests==2.22.0
-rsa==4.0
+rsa==4.1
 schedule==0.6.0
 six==1.14.0
 uritemplate==3.0.1
