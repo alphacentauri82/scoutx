@@ -1,4 +1,4 @@
-# Scout: The Nexmo Nightscout Notifier
+# ScoutX: The Nightscout Notifier
 
 Scout is an application created in `Python`, using `Flask` which includes `jinja2` as a template engine. This allows us to separate the logic of the application from the presentation of the data. On the client side, javascript will be used to develop certain dynamic functionalities required for our App.
 

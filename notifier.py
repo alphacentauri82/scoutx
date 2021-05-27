@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 
 import schedule
 import time
-# For UTC ISOFORMAT CALCULATIONS - Nightscout use another isoformat so we use the next modules to
+# For UTC ISOFORMAT CALCULATIONS - Nightscout use another isoformat so we use the following modules to
 # convert propertly and get most exact calculations
 from datetime import datetime
 import calendar
