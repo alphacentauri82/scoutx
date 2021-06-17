@@ -36,7 +36,7 @@ with app.app_context():
 # enable cors
 cors = CORS(app)
 # define secret_key to flask app to manage sessions
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+app.secret_key = b'su\xdb\xf2\x94hK\x81J\x8c\xf7\x1e\xfb\x81F\xf1'
 
 # load environment
 envpath = join(dirname(__file__), "./.env")
@@ -181,7 +181,7 @@ def handle_nightscout_failed_pings(to, api_url, username):
                 "message": {
                     "content": {
                         "type": "text",
-                        "text": "Dear {0} the nexmo api url: {1} is not responding, please check the service".format(username, api_url)
+                        "text": "Dear {0} the Nightscout api url: {1} is not responding, please check the service".format(username, api_url)
                     }
                 }
             }
@@ -480,7 +480,7 @@ if __name__ == "notifier":
     signal.signal(signal.SIGINT, signal_handler)
     # run job at second 30 of each minute
     schedule.every().minute.at(':30').do(job, str(uuid.uuid4()))
-    # update scouts each our at minute 00
+    # update scouts each hour at minute 00
     schedule.every().hour.at(':00').do(refresh_scouts, str(uuid.uuid4()))
     thread = Process(target=run_schedule)
     thread.start()

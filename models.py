@@ -1,3 +1,4 @@
+
 # Load Firebase configuration
 from firebase_admin import firestore
 import firebase_admin
