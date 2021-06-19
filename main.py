@@ -1,4 +1,5 @@
 import nexmo
+import twilio.rest
 import json, ast
 import os
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
@@ -10,8 +11,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from os.path import join, dirname
 from dotenv import load_dotenv
-
-import schedule
+from env_flag import env_flag
 import time
 # For UTC ISOFORMAT CALCULATIONS - Nightscout use another isoformat so we use the next modules to
 # convert propertly and get most exact calculations
@@ -24,6 +24,8 @@ from multiprocessing import Process
 import signal
 # We will use this to get a unique identifier for the schedule process
 import uuid
+from apscheduler.schedulers.background import BackgroundScheduler
+import atexit
 
 # Init the flask App
 app = Flask(__name__)
@@ -42,11 +44,16 @@ app.secret_key = b'su\xdb\xf2\x94hK\x81J\x8c\xf7\x1e\xfb\x81F\xf1'
 envpath = join(dirname(__file__), "./.env")
 load_dotenv(envpath)
 
-# Load nexmo client for global usage in server
-client = nexmo.Client(
-    application_id=os.getenv('NEXMO_APPLICATION_ID'),
-    private_key=os.getenv('NEXMO_PRIVATE_KEY').replace('\\n','\n')
-)
+# Load communication client for global usage in server
+
+if env_flag('USE_TWILIO'):
+    client = twilio.rest.Client(os.getenv('TWILIO_ACCOUNT_SID'),
+                                os.getenv('TWILIO_AUTH_TOKEN'))
+else:  
+    client = nexmo.Client(
+        application_id=os.getenv('NEXMO_APPLICATION_ID'),
+        private_key=os.getenv('NEXMO_PRIVATE_KEY').replace('\\n','\n')
+    )
 
 active_scouts = []
 
@@ -75,6 +82,7 @@ def home():
                     'phone'), u'emerg_contact': request.form.get('emerg_contact'), u'extra_contacts': extra_contacts}, request.form.get('id'))
         return render_template("home.html", client_id=os.getenv("GOOGLE_CLIENT_ID"), user=get_session("user"), scout=nightscouts.get_by_email(get_session("user")["email"]))
     else:
+##        print(os.getenv("SITE_URL"))
         return render_template("login.html", client_id=os.getenv("GOOGLE_CLIENT_ID"), site_url=os.getenv("SITE_URL"))
 
 # get the token_id and if valid then create the server session for persistance login
@@ -160,7 +168,7 @@ def handle_nightscout_failed_pings(to, api_url, username):
     else:
         nightscout_failed_pings[to] += 1
     # print('Intent: {0} for {1}'.format(nightscout_failed_pings[to],to))
-    if nightscout_failed_pings[to] == int(os.getenv("NEXMO_FAILED_PING_SMS")):
+    if nightscout_failed_pings[to] == int(os.getenv("NIGHTSCOUT_FAILED_PING_SMS")):
         response = requests.post(
             'https://api.nexmo.com/v0.1/messages',
             auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
@@ -378,7 +386,7 @@ def signal_handler(signum, frame):
 start_scouts = False
 
 
-def refresh_scouts(id):
+def refresh_scouts():
     global active_scouts
     global start_scouts
     # Import Scout models for thread
@@ -389,7 +397,7 @@ def refresh_scouts(id):
 try:
     nightscouts = scouts()
     active_scouts = nightscouts.get_all()
-    print("Refresh Scouts Job " + id + "")
+    print("Refresh Scouts Job")
     if start_scouts == False:
         start_scouts = True
 
@@ -403,7 +411,7 @@ except:
 # And if applicable any extra contacts
 
 
-def job(id):
+def job():
     # Calling nemo global client variable
     global client
     global active_scouts
@@ -411,7 +419,7 @@ def job(id):
     global nightscout_failed_update_wait_mark
     global start_scouts
 
-    print("Alerts Job " + id + "")
+    print("Alerts Job")
     if active_scouts != None:
         if start_scouts == False:
             refresh_scouts('Starting_Scouts')
@@ -460,28 +468,16 @@ def job(id):
                     print("Server could not establish connection with " +
                           active_scout["nightscout_api"])
 
+def on_shutdown():
+    print("Signal Detected: Killing Nightscout-Nexmo App.")
+    scheduler.shutdown()
 
-# Manage individual schedule Thread Loop
-def run_schedule():
-    global thread
-    while True:
-        try:
-            schedule.run_pending()
-            time.sleep(1)
-        except ApplicationKilledException:
-            print("Signal Detected: Killing Nightscout-Nexmo App.")
-            # clean the schedule
-            schedule.clear()
-            return "Thread Killed"
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
+scheduler = BackgroundScheduler() 
+scheduler.add_job(func=job, trigger='cron', second=30)
+scheduler.add_job(func=refresh_scouts, trigger='cron', hour='*')
+scheduler.start()
+print("Nightscout-Nexmo Thread starts")
 
-
-if __name__ == "notifier":
-    signal.signal(signal.SIGTERM, signal_handler)
-    signal.signal(signal.SIGINT, signal_handler)
-    # run job at second 30 of each minute
-    schedule.every().minute.at(':30').do(job, str(uuid.uuid4()))
-    # update scouts each hour at minute 00
-    schedule.every().hour.at(':00').do(refresh_scouts, str(uuid.uuid4()))
-    thread = Process(target=run_schedule)
-    thread.start()
-    print("Nightscout-Nexmo Thread starts")
+atexit.register(on_shutdown)
