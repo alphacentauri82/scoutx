@@ -169,37 +169,49 @@ def handle_nightscout_failed_pings(to, api_url, username):
         nightscout_failed_pings[to] += 1
     # print('Intent: {0} for {1}'.format(nightscout_failed_pings[to],to))
     if nightscout_failed_pings[to] == int(os.getenv("NIGHTSCOUT_FAILED_PING_SMS")):
-        response = requests.post(
-            'https://api.nexmo.com/v0.1/messages',
-            auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
-                               os.getenv("NEXMO_API_SECRET")),
-            headers={
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            json={
-                "from": {
-                    "type": "sms",
-                    "number": os.getenv("NEXMO_NUMBER"),
-                },
-                "to": {
-                    "type": "sms",
-                    "number": to
-                },
-                "message": {
-                    "content": {
-                        "type": "text",
-                        "text": "Dear {0} the Nightscout api url: {1} is not responding, please check the service".format(username, api_url)
-                    }
-                }
-            }
-        ).json()
-
         # Reset the variable
         nightscout_failed_pings[to] = 0
+        
+        if not env_flag('USE_TWILIO'):
+            response = requests.post(
+                'https://api.nexmo.com/v0.1/messages',
+                auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
+                                   os.getenv("NEXMO_API_SECRET")),
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                json={
+                    "from": {
+                        "type": "sms",
+                        "number": os.getenv("NEXMO_NUMBER"),
+                    },
+                    "to": {
+                        "type": "sms",
+                        "number": to
+                    },
+                    "message": {
+                        "content": {
+                            "type": "text",
+                            "text": "Dear {0} the Nightscout api url: {1} is not responding, please check the service".format(username, api_url)
+                        }
+                    }
+                }
+            ).json()
 
-        if "message_uuid" in response:
-            return True
+            if "message_uuid" in response:
+                return True
+        else:
+            message = client.messages \
+                .create(
+                     body="Dear {0} the Nightscout api url: {1} is not responding, please check the service".format(username, api_url),
+                     from_=os.getenv("TWILIO_NUMBER"),
+                     to=to
+                 )
+
+            if message.status != 'failed':
+                return True
+            
     return False
 
 
@@ -279,7 +291,7 @@ def call_glucose_alert(to, glucose):
         return False
 
 
-def sms_request_glucose_level(args, glucose):
+def sms_request_glucose_level_nexmo(args, glucose):
     global client
 
     args = ast.literal_eval(json.dumps(args))
@@ -324,6 +336,7 @@ def sms_request_glucose_level(args, glucose):
         return False
 
 
+# Nexmo webhooks
 @app.route('/webhooks/inbound-messages', methods=["POST"])
 def inbound_sms():
     args = dict(request.form)
@@ -331,7 +344,7 @@ def inbound_sms():
     if args.get('status'):
         return args['status']
 
-    sms_request_glucose_level(args, glucose)
+    sms_request_glucose_level_nexmo(args, glucose)
 
     return "Message Received"
 
@@ -365,6 +378,8 @@ def events():
                     # print('sms simulation to: {0} {1} {2}'.format(phone, uscout["username"], glucose))
                     sms_glucose_alert(phone, uscout["username"], glucose)
     return "Event Received"
+
+# Twilio webhooks
 
 # Schedule Logic
 
