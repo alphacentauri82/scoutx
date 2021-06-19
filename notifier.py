@@ -126,31 +126,40 @@ def handle_nightscout_failed_update(to, api_url, username):
         nightscout_failed_update_wait_mark[to] += 1
 
     if nightscout_failed_update_wait_mark[to] == 1:
-        response = requests.post(
-            'https://api.nexmo.com/v0.1/messages',
-            auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
-                               os.getenv("NEXMO_API_SECRET")),
-            headers={
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            json={
-                "from": {
-                    "type": "sms",
-                    "number": os.getenv("NEXMO_NUMBER"),
+        if not env_flag('USE_TWILIO'):
+            response = requests.post(
+                'https://api.nexmo.com/v0.1/messages',
+                auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
+                                   os.getenv("NEXMO_API_SECRET")),
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
                 },
-                "to": {
-                    "type": "sms",
-                    "number": to
-                },
-                "message": {
-                    "content": {
-                        "type": "text",
-                        "text": "Dear {0} the nightscout api is not retrieving updated entries, please check your device or your service to solve any issues".format(username)
+                json={
+                    "from": {
+                        "type": "sms",
+                        "number": os.getenv("NEXMO_NUMBER"),
+                    },
+                    "to": {
+                        "type": "sms",
+                        "number": to
+                    },
+                    "message": {
+                        "content": {
+                            "type": "text",
+                            "text": "Dear {0} the nightscout api is not retrieving updated entries, please check your device or your service to solve any issues".format(username)
+                        }
                     }
                 }
-            }
-        ).json()
+            ).json()
+        else:
+            message = client.messages \
+                .create(
+                     body="Dear {0} the nightscout api is not retrieving updated entries, please check your device or your service to solve any issues".format(username),
+                     from_=os.getenv("TWILIO_NUMBER"),
+                     to=to
+                 )
+                        
     elif nightscout_failed_update_wait_mark[to] == int(os.getenv("WAIT_AFTER_SMS_MARK")):
         nightscout_failed_update_wait_mark[to] = 0
 
