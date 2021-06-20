@@ -226,37 +226,49 @@ def handle_nightscout_failed_pings(to, api_url, username):
 
 def sms_glucose_alert(to, username, glucose):
     global client
-    # We send our sms using the messages api not the sms api
-    response = requests.post(
-        'https://api.nexmo.com/v0.1/messages',
-        auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
-                           os.getenv("NEXMO_API_SECRET")),
-        headers={
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        },
-        json={
-            "from": {
-                "type": "sms",
-                "number": os.getenv("NEXMO_NUMBER"),
+
+    if not env_flag('USE_TWILIO'):
+        # We send our sms using the messages api not the sms api
+        response = requests.post(
+            'https://api.nexmo.com/v0.1/messages',
+            auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
+                               os.getenv("NEXMO_API_SECRET")),
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json"
             },
-            "to": {
-                "type": "sms",
-                "number": to
-            },
-            "message": {
-                "content": {
-                    "type": "text",
-                    "text": "Alert {username} Blood Glucose is {glucose}".format(username=username, glucose=glucose)
+            json={
+                "from": {
+                    "type": "sms",
+                    "number": os.getenv("NEXMO_NUMBER"),
+                },
+                "to": {
+                    "type": "sms",
+                    "number": to
+                },
+                "message": {
+                    "content": {
+                        "type": "text",
+                        "text": "Alert {username} Blood Glucose is {glucose}".format(username=username, glucose=glucose)
+                    }
                 }
             }
-        }
-    ).json()
+        ).json()
 
-    if "message_uuid" in response:
-        return True
+        if "message_uuid" in response:
+            return True
     else:
-        return False
+        message = client.messages \
+            .create(
+                 body="Alert {username} Blood Glucose is {glucose}".format(username=username, glucose=glucose),
+                 from_=os.getenv("TWILIO_NUMBER"),
+                 to=to
+             )
+
+        if message.status != 'failed':
+            return True
+        
+    return False
 
 
 last_call = {}
@@ -270,34 +282,45 @@ def call_glucose_alert(to, glucose):
             return False
     # print('Call {0} {1}'.format(to, glucose))
     last_call[to] = time.time()
-
-    # We make our call using the voice API
-    response = client.create_call(
-        {
-            "to": [{
-                "type": "phone",
-                "number": to
-            }],
-            "from": {
-                "type": "phone",
-                "number": os.getenv('NEXMO_NUMBER')
-            },
-            "ncco": [
-                {
-                    "action": "talk",
-                    "text": "Alert Your Blood Glucose is {0}".format(glucose)
-                }
-            ],
-            "eventUrl": [
-                "{url_root}/webhooks/events".format(
-                    url_root=os.getenv("SITE_URL"))
-            ]
-        }
-    )
-    if "uuid" in response:
-        return True
+    
+    if not env_flag('USE_TWILIO'):
+        # We make our call using the voice API
+        response = client.create_call(
+            {
+                "to": [{
+                    "type": "phone",
+                    "number": to
+                }],
+                "from": {
+                    "type": "phone",
+                    "number": os.getenv('NEXMO_NUMBER')
+                },
+                "ncco": [
+                    {
+                        "action": "talk",
+                        "text": "Alert Your Blood Glucose is {0}".format(glucose)
+                    }
+                ],
+                "eventUrl": [
+                    "{url_root}/webhooks/events".format(
+                        url_root=os.getenv("SITE_URL"))
+                ]
+            }
+        )
+        
+        if "uuid" in response:
+            return True
     else:
-        return False
+        call = client.calls.create(
+                        twiml='<Response><Say>Alert Your Blood Glucose is {0}</Say></Response>'.format('65'),
+                        to=to,
+                        from_=os.getenv("TWILIO_NUMBER")
+                    )
+
+        if call.status != 'failed':
+            return True
+        
+    return False
 
 
 def sms_request_glucose_level_nexmo(args, glucose):
@@ -505,3 +528,5 @@ scheduler.start()
 print("Nightscout-Nexmo Thread starts")
 
 atexit.register(on_shutdown)
+
+call_glucose_alert('14049561232', 50)
