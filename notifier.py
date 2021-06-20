@@ -312,7 +312,7 @@ def call_glucose_alert(to, glucose):
             return True
     else:
         call = client.calls.create(
-                        twiml='<Response><Say>Alert Your Blood Glucose is {0}</Say></Response>'.format('65'),
+                        twiml='<Response><Say>Alert Your Blood Glucose is {0}</Say></Response>'.format(glucose),
                         to=to,
                         from_=os.getenv("TWILIO_NUMBER")
                     )
@@ -412,7 +412,12 @@ def events():
     return "Event Received"
 
 # Twilio webhooks
+@app.route('/webhooks/twilio-inbound-messages', methods=["POST", "GET"])
+def incoming_sms():
+    body = request.values.get('Body', '')
 
+    return "Event Received"
+    
 # Schedule Logic
 
 
