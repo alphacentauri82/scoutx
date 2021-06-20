@@ -596,3 +596,6 @@ print("Nightscout-Nexmo Thread starts")
 atexit.register(on_shutdown)
 
 ##call_glucose_alert('14049561232', 50)
+##handle_nightscout_failed_update('14049561232', 'test.com', 'vmalepati1')
+##sms_glucose_alert('14049561232', 'vmalepati1', 65)
+##sms_request_glucose_level_twilio('NIGHTSCOUT', '14049561232', 65)
