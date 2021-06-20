@@ -126,4 +126,5 @@ pythonenv3.8/
 .dmypy.json
 dmypy.json
 
-
+PRIVATE_KEY.json
+nexmo_private.key

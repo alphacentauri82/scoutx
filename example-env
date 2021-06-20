@@ -6,6 +6,10 @@ GOOGLE_CLIENT_ID="YOUR_GOOGLE_AUTH_CLIENT_ID"
 #Firebase - Firestore
 FIREBASE_PRIVATE_KEY="./PRIVATE_KEY.json"
 
+#Communication API Preferences
+#Set to "True" if you would like to use Twilio for SMS/calls or "False" for Nexmo
+USE_TWILIO="True"
+
 #NEXMO
 #Application id and private key are used to generate JWT for the voice api
 NEXMO_APPLICATION_ID="NEXMO_APPLICATION_ID"
@@ -15,13 +19,17 @@ NEXMO_API_KEY="NEXMO_API_KEY"
 NEXMO_API_SECRET="NEXMO_API_SECRET"
 NEXMO_NUMBER="NEXMO_VIRTUAL_NUMBER"
 
+TWILIO_ACCOUNT_SID="TWILIO_ACCOUNT_SID"
+TWILIO_AUTH_TOKEN="TWILIO_AUTH_TOKEN"
+TWILIO_NUMBER="TWILIO_NUMBER"
+
 #For App purposes
 SITE_URL="https://domain.ext"
 #Aplication ping is 30 seconds. If a call is done then wait a time after call the same number again
 WAIT_AFTER_CALL="120"
 #When the number of failed pings is 60 send a sms to customer / 60 is the equal to 1 hour of intents
 #Of course, you can change this parameter as you wish
-NEXMO_FAILED_PING_SMS="60"
+NIGHTSCOUT_FAILED_PING_SMS="60"
 
 # If after X seconds NIGHTSCOUT entries still not updating  sms is sent to user notifying about$
 NIGHTSCOUT_NOT_UPDATE_SECONDS = "1800"

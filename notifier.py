@@ -1,4 +1,5 @@
 import nexmo
+import twilio.rest
 import json, ast
 import os
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
@@ -10,8 +11,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 from os.path import join, dirname
 from dotenv import load_dotenv
-
-import schedule
+from env_flag import env_flag
 import time
 # For UTC ISOFORMAT CALCULATIONS - Nightscout use another isoformat so we use the next modules to
 # convert propertly and get most exact calculations
@@ -24,6 +24,8 @@ from multiprocessing import Process
 import signal
 # We will use this to get a unique identifier for the schedule process
 import uuid
+from apscheduler.schedulers.background import BackgroundScheduler
+import atexit
 
 # Init the flask App
 app = Flask(__name__)
@@ -36,17 +38,22 @@ with app.app_context():
 # enable cors
 cors = CORS(app)
 # define secret_key to flask app to manage sessions
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+app.secret_key = b'su\xdb\xf2\x94hK\x81J\x8c\xf7\x1e\xfb\x81F\xf1'
 
 # load environment
 envpath = join(dirname(__file__), "./.env")
 load_dotenv(envpath)
 
-# Load nexmo client for global usage in server
-client = nexmo.Client(
-    application_id=os.getenv('NEXMO_APPLICATION_ID'),
-    private_key=os.getenv('NEXMO_PRIVATE_KEY').replace('\\n','\n')
-)
+# Load communication client for global usage in server
+
+if env_flag('USE_TWILIO'):
+    client = twilio.rest.Client(os.getenv('TWILIO_ACCOUNT_SID'),
+                                os.getenv('TWILIO_AUTH_TOKEN'))
+else:  
+    client = nexmo.Client(
+        application_id=os.getenv('NEXMO_APPLICATION_ID'),
+        private_key=os.getenv('NEXMO_PRIVATE_KEY').replace('\\n','\n')
+    )
 
 active_scouts = []
 
@@ -75,6 +82,7 @@ def home():
                     'phone'), u'emerg_contact': request.form.get('emerg_contact'), u'extra_contacts': extra_contacts}, request.form.get('id'))
         return render_template("home.html", client_id=os.getenv("GOOGLE_CLIENT_ID"), user=get_session("user"), scout=nightscouts.get_by_email(get_session("user")["email"]))
     else:
+##        print(os.getenv("SITE_URL"))
         return render_template("login.html", client_id=os.getenv("GOOGLE_CLIENT_ID"), site_url=os.getenv("SITE_URL"))
 
 # get the token_id and if valid then create the server session for persistance login
@@ -118,31 +126,40 @@ def handle_nightscout_failed_update(to, api_url, username):
         nightscout_failed_update_wait_mark[to] += 1
 
     if nightscout_failed_update_wait_mark[to] == 1:
-        response = requests.post(
-            'https://api.nexmo.com/v0.1/messages',
-            auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
-                               os.getenv("NEXMO_API_SECRET")),
-            headers={
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            json={
-                "from": {
-                    "type": "sms",
-                    "number": os.getenv("NEXMO_NUMBER"),
+        if not env_flag('USE_TWILIO'):
+            response = requests.post(
+                'https://api.nexmo.com/v0.1/messages',
+                auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
+                                   os.getenv("NEXMO_API_SECRET")),
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
                 },
-                "to": {
-                    "type": "sms",
-                    "number": to
-                },
-                "message": {
-                    "content": {
-                        "type": "text",
-                        "text": "Dear {0} the nightscout api is not retrieving updated entries, please check your device or your service to solve any issues".format(username)
+                json={
+                    "from": {
+                        "type": "sms",
+                        "number": os.getenv("NEXMO_NUMBER"),
+                    },
+                    "to": {
+                        "type": "sms",
+                        "number": to
+                    },
+                    "message": {
+                        "content": {
+                            "type": "text",
+                            "text": "Dear {0} the nightscout api is not retrieving updated entries, please check your device or your service to solve any issues".format(username)
+                        }
                     }
                 }
-            }
-        ).json()
+            ).json()
+        else:
+            message = client.messages \
+                .create(
+                     body="Dear {0} the nightscout api is not retrieving updated entries, please check your device or your service to solve any issues".format(username),
+                     from_=os.getenv("TWILIO_NUMBER"),
+                     to=to
+                 )
+                        
     elif nightscout_failed_update_wait_mark[to] == int(os.getenv("WAIT_AFTER_SMS_MARK")):
         nightscout_failed_update_wait_mark[to] = 0
 
@@ -160,7 +177,58 @@ def handle_nightscout_failed_pings(to, api_url, username):
     else:
         nightscout_failed_pings[to] += 1
     # print('Intent: {0} for {1}'.format(nightscout_failed_pings[to],to))
-    if nightscout_failed_pings[to] == int(os.getenv("NEXMO_FAILED_PING_SMS")):
+    if nightscout_failed_pings[to] == int(os.getenv("NIGHTSCOUT_FAILED_PING_SMS")):
+        # Reset the variable
+        nightscout_failed_pings[to] = 0
+        
+        if not env_flag('USE_TWILIO'):
+            response = requests.post(
+                'https://api.nexmo.com/v0.1/messages',
+                auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
+                                   os.getenv("NEXMO_API_SECRET")),
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                json={
+                    "from": {
+                        "type": "sms",
+                        "number": os.getenv("NEXMO_NUMBER"),
+                    },
+                    "to": {
+                        "type": "sms",
+                        "number": to
+                    },
+                    "message": {
+                        "content": {
+                            "type": "text",
+                            "text": "Dear {0} the Nightscout api url: {1} is not responding, please check the service".format(username, api_url)
+                        }
+                    }
+                }
+            ).json()
+
+            if "message_uuid" in response:
+                return True
+        else:
+            message = client.messages \
+                .create(
+                     body="Dear {0} the Nightscout api url: {1} is not responding, please check the service".format(username, api_url),
+                     from_=os.getenv("TWILIO_NUMBER"),
+                     to=to
+                 )
+
+            if message.status != 'failed':
+                return True
+            
+    return False
+
+
+def sms_glucose_alert(to, username, glucose):
+    global client
+
+    if not env_flag('USE_TWILIO'):
+        # We send our sms using the messages api not the sms api
         response = requests.post(
             'https://api.nexmo.com/v0.1/messages',
             auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
@@ -181,53 +249,26 @@ def handle_nightscout_failed_pings(to, api_url, username):
                 "message": {
                     "content": {
                         "type": "text",
-                        "text": "Dear {0} the nexmo api url: {1} is not responding, please check the service".format(username, api_url)
+                        "text": "Alert {username} Blood Glucose is {glucose}".format(username=username, glucose=glucose)
                     }
                 }
             }
         ).json()
 
-        # Reset the variable
-        nightscout_failed_pings[to] = 0
-
         if "message_uuid" in response:
             return True
-    return False
-
-
-def sms_glucose_alert(to, username, glucose):
-    global client
-    # We send our sms using the messages api not the sms api
-    response = requests.post(
-        'https://api.nexmo.com/v0.1/messages',
-        auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
-                           os.getenv("NEXMO_API_SECRET")),
-        headers={
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        },
-        json={
-            "from": {
-                "type": "sms",
-                "number": os.getenv("NEXMO_NUMBER"),
-            },
-            "to": {
-                "type": "sms",
-                "number": to
-            },
-            "message": {
-                "content": {
-                    "type": "text",
-                    "text": "Alert {username} Blood Glucose is {glucose}".format(username=username, glucose=glucose)
-                }
-            }
-        }
-    ).json()
-
-    if "message_uuid" in response:
-        return True
     else:
-        return False
+        message = client.messages \
+            .create(
+                 body="Alert {username} Blood Glucose is {glucose}".format(username=username, glucose=glucose),
+                 from_=os.getenv("TWILIO_NUMBER"),
+                 to=to
+             )
+
+        if message.status != 'failed':
+            return True
+        
+    return False
 
 
 last_call = {}
@@ -241,37 +282,52 @@ def call_glucose_alert(to, glucose):
             return False
     # print('Call {0} {1}'.format(to, glucose))
     last_call[to] = time.time()
-
-    # We make our call using the voice API
-    response = client.create_call(
-        {
-            "to": [{
-                "type": "phone",
-                "number": to
-            }],
-            "from": {
-                "type": "phone",
-                "number": os.getenv('NEXMO_NUMBER')
-            },
-            "ncco": [
-                {
-                    "action": "talk",
-                    "text": "Alert Your Blood Glucose is {0}".format(glucose)
-                }
-            ],
-            "eventUrl": [
-                "{url_root}/webhooks/events".format(
-                    url_root=os.getenv("SITE_URL"))
-            ]
-        }
-    )
-    if "uuid" in response:
-        return True
+    
+    if not env_flag('USE_TWILIO'):
+        # We make our call using the voice API
+        response = client.create_call(
+            {
+                "to": [{
+                    "type": "phone",
+                    "number": to
+                }],
+                "from": {
+                    "type": "phone",
+                    "number": os.getenv('NEXMO_NUMBER')
+                },
+                "ncco": [
+                    {
+                        "action": "talk",
+                        "text": "Alert Your Blood Glucose is {0}".format(glucose)
+                    }
+                ],
+                "eventUrl": [
+                    "{url_root}/webhooks/events".format(
+                        url_root=os.getenv("SITE_URL"))
+                ]
+            }
+        )
+        
+        if "uuid" in response:
+            return True
     else:
-        return False
+        call = client.calls.create(
+                        method='GET',
+                        twiml='<Response><Say>Alert Your Blood Glucose is {0}</Say></Response>'.format(glucose),
+                        status_callback=os.getenv("SITE_URL") + "/webhooks/twilio-on-completed",
+                        status_callback_event=['completed'],
+                        status_callback_method='POST',
+                        to=to,
+                        from_=os.getenv("TWILIO_NUMBER")
+                    )
+
+        if call.status != 'failed':
+            return True
+        
+    return False
 
 
-def sms_request_glucose_level(args, glucose):
+def sms_request_glucose_level_nexmo(args, glucose):
     global client
 
     args = ast.literal_eval(json.dumps(args))
@@ -315,15 +371,40 @@ def sms_request_glucose_level(args, glucose):
     else:
         return False
 
+def sms_request_glucose_level_twilio(keyword, to, glucose):
+    global client
 
+    if keyword == "NIGHTSCOUT":
+        # "msg" stores the response to be sent\
+        msg = "Hey, the latest blood glucose level entry: {glucose}".format(glucose=glucose)
+
+        message = client.messages \
+            .create(
+                 body=msg,
+                 from_=os.getenv("TWILIO_NUMBER"),
+                 to=to
+             )
+
+        if message.status != 'failed':
+            return True
+
+    return False
+
+# Nexmo webhooks
 @app.route('/webhooks/inbound-messages', methods=["POST"])
 def inbound_sms():
+    global glucose
+    
     args = dict(request.form)
 
     if args.get('status'):
         return args['status']
 
-    sms_request_glucose_level(args, glucose)
+    uscout = nightscouts.getby_personal_phone(to)
+    if uscout != None:
+        entries = requests.get(uscout["nightscout_api"]).json()
+        glucose = entries[0]['sgv']
+        sms_request_glucose_level_nexmo(args, glucose)
 
     return "Message Received"
 
@@ -358,6 +439,46 @@ def events():
                     sms_glucose_alert(phone, uscout["username"], glucose)
     return "Event Received"
 
+# Twilio webhooks
+@app.route('/webhooks/twilio-inbound-messages', methods=["POST", "GET"])
+def incoming_sms():
+    global glucose
+    
+    keyword = request.values.get('Body', '')
+    to = request.values.get('From', '')
+
+    uscout = nightscouts.getby_personal_phone(to)
+    if uscout != None:
+        entries = requests.get(uscout["nightscout_api"]).json()
+        glucose = entries[0]['sgv']
+        sms_request_glucose_level_twilio(keyword, to, glucose)
+
+    return "Message Received"
+
+@app.route('/webhooks/twilio-on-completed', methods=["POST", "GET"])
+def on_completed():
+    global active_scouts
+    global glucose
+    
+    phone = request.values.get('To', '')
+    # The next line is not recomended its functional but use the global active_scouts variable
+    # This variable is updated by the daemon process.. that run in another context
+    # Not the flask context, for that reason we are going to use firebase to get
+    # fresh data
+    # uscout = [active_scout for active_scout in active_scouts if active_scout['phone'] == phone]
+    uscout = nightscouts.getby_personal_phone(phone)
+    if uscout != None:
+        entries = requests.get(uscout["nightscout_api"]).json()
+        glucose = entries[0]['sgv']
+        sms_glucose_alert(
+            uscout["emerg_contact"], uscout["username"], glucose)
+        # print('sms simulation to: {0} {1} {2}'.format(uscout["emerg_contact"], uscout["username"], glucose))
+        for phone in uscout["extra_contacts"]:
+            # print('sms simulation to: {0} {1} {2}'.format(phone, uscout["username"], glucose))
+            sms_glucose_alert(phone, uscout["username"], glucose)
+
+    return "Event Received"
+    
 # Schedule Logic
 
 
@@ -378,7 +499,7 @@ def signal_handler(signum, frame):
 start_scouts = False
 
 
-def refresh_scouts(id):
+def refresh_scouts():
     global active_scouts
     global start_scouts
     # Import Scout models for thread
@@ -389,7 +510,7 @@ def refresh_scouts(id):
 try:
     nightscouts = scouts()
     active_scouts = nightscouts.get_all()
-    print("Refresh Scouts Job " + id + "")
+    print("Refresh Scouts Job")
     if start_scouts == False:
         start_scouts = True
 
@@ -403,7 +524,7 @@ except:
 # And if applicable any extra contacts
 
 
-def job(id):
+def job():
     # Calling nemo global client variable
     global client
     global active_scouts
@@ -411,7 +532,7 @@ def job(id):
     global nightscout_failed_update_wait_mark
     global start_scouts
 
-    print("Alerts Job " + id + "")
+    print("Alerts Job")
     if active_scouts != None:
         if start_scouts == False:
             refresh_scouts('Starting_Scouts')
@@ -460,28 +581,21 @@ def job(id):
                     print("Server could not establish connection with " +
                           active_scout["nightscout_api"])
 
+def on_shutdown():
+    print("Signal Detected: Killing Nightscout-Nexmo App.")
+    scheduler.shutdown()
 
-# Manage individual schedule Thread Loop
-def run_schedule():
-    global thread
-    while True:
-        try:
-            schedule.run_pending()
-            time.sleep(1)
-        except ApplicationKilledException:
-            print("Signal Detected: Killing Nightscout-Nexmo App.")
-            # clean the schedule
-            schedule.clear()
-            return "Thread Killed"
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
+scheduler = BackgroundScheduler() 
+scheduler.add_job(func=job, trigger='cron', second=30)
+scheduler.add_job(func=refresh_scouts, trigger='cron', hour='*')
+scheduler.start()
+print("Nightscout-Nexmo Thread starts")
 
+atexit.register(on_shutdown)
 
-if __name__ == "notifier":
-    signal.signal(signal.SIGTERM, signal_handler)
-    signal.signal(signal.SIGINT, signal_handler)
-    # run job at second 30 of each minute
-    schedule.every().minute.at(':30').do(job, str(uuid.uuid4()))
-    # update scouts each our at minute 00
-    schedule.every().hour.at(':00').do(refresh_scouts, str(uuid.uuid4()))
-    thread = Process(target=run_schedule)
-    thread.start()
-    print("Nightscout-Nexmo Thread starts")
+##call_glucose_alert('14049561232', 50)
+##handle_nightscout_failed_update('14049561232', 'test.com', 'vmalepati1')
+##sms_glucose_alert('14049561232', 'vmalepati1', 65)
+##sms_request_glucose_level_twilio('NIGHTSCOUT', '14049561232', 65)
