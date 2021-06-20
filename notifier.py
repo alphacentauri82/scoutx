@@ -312,7 +312,11 @@ def call_glucose_alert(to, glucose):
             return True
     else:
         call = client.calls.create(
+                        method='GET',
                         twiml='<Response><Say>Alert Your Blood Glucose is {0}</Say></Response>'.format(glucose),
+                        status_callback=os.getenv("SITE_URL") + "/webhooks/twilio-on-completed",
+                        status_callback_event=['completed'],
+                        status_callback_method='POST',
                         to=to,
                         from_=os.getenv("TWILIO_NUMBER")
                     )
@@ -367,16 +371,40 @@ def sms_request_glucose_level_nexmo(args, glucose):
     else:
         return False
 
+def sms_request_glucose_level_twilio(keyword, to, glucose):
+    global client
+
+    if keyword == "NIGHTSCOUT":
+        # "msg" stores the response to be sent\
+        msg = "Hey, the latest blood glucose level entry: {glucose}".format(glucose=glucose)
+
+        message = client.messages \
+            .create(
+                 body=msg,
+                 from_=os.getenv("TWILIO_NUMBER"),
+                 to=to
+             )
+
+        if message.status != 'failed':
+            return True
+
+    return False
 
 # Nexmo webhooks
 @app.route('/webhooks/inbound-messages', methods=["POST"])
 def inbound_sms():
+    global glucose
+    
     args = dict(request.form)
 
     if args.get('status'):
         return args['status']
 
-    sms_request_glucose_level_nexmo(args, glucose)
+    uscout = nightscouts.getby_personal_phone(to)
+    if uscout != None:
+        entries = requests.get(uscout["nightscout_api"]).json()
+        glucose = entries[0]['sgv']
+        sms_request_glucose_level_nexmo(args, glucose)
 
     return "Message Received"
 
@@ -414,7 +442,40 @@ def events():
 # Twilio webhooks
 @app.route('/webhooks/twilio-inbound-messages', methods=["POST", "GET"])
 def incoming_sms():
-    body = request.values.get('Body', '')
+    global glucose
+    
+    keyword = request.values.get('Body', '')
+    to = request.values.get('From', '')
+
+    uscout = nightscouts.getby_personal_phone(to)
+    if uscout != None:
+        entries = requests.get(uscout["nightscout_api"]).json()
+        glucose = entries[0]['sgv']
+        sms_request_glucose_level_twilio(keyword, to, glucose)
+
+    return "Message Received"
+
+@app.route('/webhooks/twilio-on-completed', methods=["POST", "GET"])
+def on_completed():
+    global active_scouts
+    global glucose
+    
+    phone = request.values.get('To', '')
+    # The next line is not recomended its functional but use the global active_scouts variable
+    # This variable is updated by the daemon process.. that run in another context
+    # Not the flask context, for that reason we are going to use firebase to get
+    # fresh data
+    # uscout = [active_scout for active_scout in active_scouts if active_scout['phone'] == phone]
+    uscout = nightscouts.getby_personal_phone(phone)
+    if uscout != None:
+        entries = requests.get(uscout["nightscout_api"]).json()
+        glucose = entries[0]['sgv']
+        sms_glucose_alert(
+            uscout["emerg_contact"], uscout["username"], glucose)
+        # print('sms simulation to: {0} {1} {2}'.format(uscout["emerg_contact"], uscout["username"], glucose))
+        for phone in uscout["extra_contacts"]:
+            # print('sms simulation to: {0} {1} {2}'.format(phone, uscout["username"], glucose))
+            sms_glucose_alert(phone, uscout["username"], glucose)
 
     return "Event Received"
     
@@ -534,4 +595,4 @@ print("Nightscout-Nexmo Thread starts")
 
 atexit.register(on_shutdown)
 
-call_glucose_alert('14049561232', 50)
+##call_glucose_alert('14049561232', 50)
