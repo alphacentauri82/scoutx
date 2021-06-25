@@ -150,13 +150,13 @@
     if(!(value!=null && value!==undefined)){
      value = "";
     }
-    div.innerHTML += '<div class="col s12 input-field"><i class="material-icons prefix">contact_phone</i><input placeholder="E.g. 50588888888" name="extra_contacts[]" value="'+value+'" type="tel" class="validate" pattern="[0-9]+"><i class="material-icons prefix sufix delete" onclick="delete_contact(\'id_'+incremental+'\')">delete</i></div>';
+    div.innerHTML += '<div class="col s12 input-field"><i class="material-icons prefix">contact_phone</i><input placeholder="E.g. 50588888888" name="extra_contacts[]" value="'+value+'" type="tel" class="validate" pattern="[0-9]+"><i class="material-icons prefix sufix delete" onclick="delete_contact(\'id_'+incremental+'\')">delete</i></div><div><label class="whatsapp-checkbox" style="padding-left: 3.75rem;"><input type="checkbox" /><span>Use WhatsApp</span></label></div>';
     container.appendChild(div);
     contact_numbers = container.getElementsByClassName("contact_number");
    }else{
     M.toast({html: 'Sorry, You can just add a maximun of 5 contact numbers'});
    }
-  }
+  }       
   function delete_contact(id){
    contact_number = document.getElementById(id);
    container.removeChild(contact_number);
