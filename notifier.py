@@ -653,8 +653,8 @@ def on_shutdown():
     print("Signal Detected: Killing Nightscout-Nexmo App.")
     scheduler.shutdown()
 
-##signal.signal(signal.SIGTERM, signal_handler)
-##signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
 scheduler = BackgroundScheduler() 
 scheduler.add_job(func=job, trigger='cron', second=30)
 scheduler.add_job(func=refresh_scouts, trigger='cron', hour='*')
