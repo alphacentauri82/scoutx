@@ -69,3 +69,7 @@ div.add-contacts-container{
 i.delete{
  cursor:pointer;
 }
+input[type=checkbox]
+{
+  -webkit-appearance:checkbox;
+}

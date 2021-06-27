@@ -74,13 +74,14 @@ class model:
 
 
 class scout:
-    def __init__(self, email='', username='', nightscout_api='', phone='', emerg_contact='', extra_contacts=[]):
+    def __init__(self, email='', username='', nightscout_api='', phone='', emerg_contact='', extra_contacts=[], extra_contacts_use_whatsapp=[]):
         self.email = email
         self.username = username
         self.nightscout_api = nightscout_api
         self.phone = phone
         self.emerg_contact = emerg_contact
         self.extra_contacts = extra_contacts
+        self.extra_contacts_use_whatsapp = extra_contacts_use_whatsapp
 
 
 class scouts(model):
