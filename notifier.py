@@ -74,12 +74,27 @@ def home():
     if get_session("user") != None:
         if request.method == "POST":
             extra_contacts = request.form.getlist('extra_contacts[]')
+
+            use_whatsapp_list_indices = request.form.getlist('whatsapp-checkbox')
+            use_whatsapp_list_final = []
+
+            # print(use_whatsapp_list_indices)
+
+            for i in range(len(extra_contacts)):
+                use_whatsapp_list_final.append('No')
+
+            for s in use_whatsapp_list_indices:
+                use_whatsapp_list_final[int(s)] = 'Yes'
+
+##            print(use_whatsapp_list_final)
+            
             if request.form.get("cmd") == "new":
                 nightscouts.add(scout(email=get_session("user")["email"], username=get_session("user")["username"], nightscout_api=request.form.get(
-                    'nightscout_api'), phone=request.form.get('phone'), emerg_contact=request.form.get('emerg_contact'), extra_contacts=extra_contacts))
+                    'nightscout_api'), phone=request.form.get('phone'), emerg_contact=request.form.get('emerg_contact'), extra_contacts=extra_contacts, extra_contacts_use_whatsapp=use_whatsapp_list_final))
             else:
                 nightscouts.update({u'nightscout_api': request.form.get('nightscout_api'), u'phone': request.form.get(
-                    'phone'), u'emerg_contact': request.form.get('emerg_contact'), u'extra_contacts': extra_contacts}, request.form.get('id'))
+                    'phone'), u'emerg_contact': request.form.get('emerg_contact'), u'extra_contacts': extra_contacts, u'extra_contacts_use_whatsapp': use_whatsapp_list_final}, request.form.get('id'))
+##        print(nightscouts.get_by_email(get_session("user")["email"]))
         return render_template("home.html", client_id=os.getenv("GOOGLE_CLIENT_ID"), user=get_session("user"), scout=nightscouts.get_by_email(get_session("user")["email"]))
     else:
 ##        print(os.getenv("SITE_URL"))
@@ -270,6 +285,52 @@ def sms_glucose_alert(to, username, glucose):
         
     return False
 
+def whatsapp_glucose_alert(to, username, glucose):
+    global client
+
+    if not env_flag('USE_TWILIO'):
+        # We send our sms using the messages api not the sms api
+        response = requests.post(
+            'https://api.nexmo.com/v0.1/messages',
+            auth=HTTPBasicAuth(os.getenv("NEXMO_API_KEY"),
+                               os.getenv("NEXMO_API_SECRET")),
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            json={
+                "from": {
+                    "type": "whatsapp",
+                    "number": os.getenv("NEXMO_WHATSAPP_NUMBER"),
+                },
+                "to": {
+                    "type": "whatsapp",
+                    "number": to
+                },
+                "message": {
+                    "content": {
+                        "type": "text",
+                        "text": "Alert {username} Blood Glucose is {glucose}".format(username=username, glucose=glucose)
+                    }
+                }
+            }
+        ).json()
+
+        if "message_uuid" in response:
+            return True
+    else:
+        message = client.messages \
+            .create(
+                 body="Alert {username} Blood Glucose is {glucose}".format(username=username, glucose=glucose),
+                 from_='whatsapp:' + os.getenv("TWILIO_WHATSAPP_NUMBER"),
+                 to='whatsapp:' + to
+             )
+
+        if message.status != 'failed':
+            return True
+        
+    return False
+
 
 last_call = {}
 
@@ -434,9 +495,13 @@ def events():
                 sms_glucose_alert(
                     uscout["emerg_contact"], uscout["username"], glucose)
                 # print('sms simulation to: {0} {1} {2}'.format(uscout["emerg_contact"], uscout["username"], glucose))
-                for phone in uscout["extra_contacts"]:
+                for index, phone in enumerate(uscout["extra_contacts"]):
                     # print('sms simulation to: {0} {1} {2}'.format(phone, uscout["username"], glucose))
-                    sms_glucose_alert(phone, uscout["username"], glucose)
+                    if uscout['extra_contacts_use_whatsapp'][index] is not True:
+                        sms_glucose_alert(phone, uscout["username"], glucose)
+                    else:
+                        whatsapp_glucose_alert(phone, uscout["username"], glucose)
+                        
     return "Event Received"
 
 # Twilio webhooks
@@ -473,9 +538,12 @@ def on_completed():
         sms_glucose_alert(
             uscout["emerg_contact"], uscout["username"], glucose)
         # print('sms simulation to: {0} {1} {2}'.format(uscout["emerg_contact"], uscout["username"], glucose))
-        for phone in uscout["extra_contacts"]:
+        for index, phone in enumerate(uscout["extra_contacts"]):
             # print('sms simulation to: {0} {1} {2}'.format(phone, uscout["username"], glucose))
-            sms_glucose_alert(phone, uscout["username"], glucose)
+            if uscout['extra_contacts_use_whatsapp'][index] is not True:
+                sms_glucose_alert(phone, uscout["username"], glucose)
+            else:
+                whatsapp_glucose_alert(phone, uscout["username"], glucose)
 
     return "Event Received"
     
@@ -585,8 +653,8 @@ def on_shutdown():
     print("Signal Detected: Killing Nightscout-Nexmo App.")
     scheduler.shutdown()
 
-signal.signal(signal.SIGTERM, signal_handler)
-signal.signal(signal.SIGINT, signal_handler)
+##signal.signal(signal.SIGTERM, signal_handler)
+##signal.signal(signal.SIGINT, signal_handler)
 scheduler = BackgroundScheduler() 
 scheduler.add_job(func=job, trigger='cron', second=30)
 scheduler.add_job(func=refresh_scouts, trigger='cron', hour='*')
@@ -598,4 +666,5 @@ atexit.register(on_shutdown)
 ##call_glucose_alert('14049561232', 50)
 ##handle_nightscout_failed_update('14049561232', 'test.com', 'vmalepati1')
 ##sms_glucose_alert('14049561232', 'vmalepati1', 65)
+##whatsapp_glucose_alert('14049561232', 'vmalepati1', 65)
 ##sms_request_glucose_level_twilio('NIGHTSCOUT', '14049561232', 65)
