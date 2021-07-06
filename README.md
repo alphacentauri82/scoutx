@@ -21,6 +21,9 @@ If your values are out of range (significantly low or high) You will get a phone
 
 I have type 1 diabetes. With all the amazing open source initiatives, this is a good way to notify my contacts should i become unresponsive due to being too high or too low. All the data comes from my nightscout dasbhoard:(If you want to check my blood glucose values in real time go to https://dianux.superdi.dev)
 
+I have learned so much throughout this year and it’s definitely a privilege to be able to help the DIY diabetes community. This is the community that saved me from having to wake up everyday at 2am, the people who helped me handle calculating ratios etc.
+When a person is diagnosed, doctors just give you a sliding scale and you have to figure out your ratios in a trial and error basis which causes a lot of horrible lows, until you figure out the right amount of insulin, and even then, this constantly changes so we are never in full control. Now with all these monitoring tools we can prevent lows/highs which are dangerous (you can die) and stay within range for most of the time.
+
 ![Nightscout Dashboard](nightscout.png)
 
 
@@ -38,17 +41,12 @@ This project has evolved a lot since it was first developed. The current roadmap
 
 - ✅ **ScoutX:** A Python app that reads data from users CGM dashboard (an OSS solution called nightscout receiving data from CGM sensors). In here you configure your own number, an emergency contact and up to 5 additional emergency contact numbers. If blood sugar levels are out of norm, it will call you first -most people can get warning of a low like that- and if you don’t pick up, it will call your emergency contact, if the first one doesn’t pick up, it goes through all of them. Should no one pick up, they will all get a text message alerting about the situation.
 
-- 🚧 A better and cheaper DIY IoT component(a revision of [LimiTTer](https://github.com/JoernL/LimiTTer) to add to Abbot Freestyle libre 2 sensors to turn them into a continuous glucose monitors. These are particularly cheaper and are the choice for diabetics in LATAM.
+- ✅ [**ScoutX Mobile:**](https://github.com/alphacentauri82/scoutx-mobile) Mobile version of ScoutX. Built on Ionic Angular. It gathers location data from your mobile device and sends alert messages with exact location in case of emergency.
 
 - 🚧  **ScoutX Tracker:** GPS LoRa tracker with a WisBlock, I can pair the data from my monitoring app and broadcast through LoRaWan. Removing the dependence on mobile internet. If I’m out of range or in a remote area I can keep broadcasting my blood glucose data, which works with the python app but also adds GPS tracking. If levels are out of norm, the calls will happen but all contacts will get a message with precise location in case of emergency.
-I have learned so much throughout this year and it’s definitely a privilege to be able to help the DIY diabetes community. This is the community that saved me from having to wake up everyday at 2am, the people who helped me handle calculating ratios etc.
-When a person is diagnosed, doctors just give you a sliding scale and you have to figure out your ratios in a trial and error basis which causes a lot of horrible lows, until you figure out the right amount of insulin, and even then, this constantly changes so we are never in full control. Now with all these monitoring tools we can prevent lows/highs which are dangerous (you can die) and stay within range for most of the time.
+
 
 ----------
-## How to build this app
-
-[Tutorial here!!](https://nexmo.dev/nightscout)
-
 ### Send SMS to get BG Data 
 
 The endpoint defined to manage the SMS Webhook is: /webhooks/inbound-messages

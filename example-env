@@ -7,10 +7,10 @@ GOOGLE_CLIENT_ID="YOUR_GOOGLE_AUTH_CLIENT_ID"
 FIREBASE_PRIVATE_KEY="./PRIVATE_KEY.json"
 
 #Communication API Preferences
-#Set to "True" if you would like to use Twilio for SMS/calls or "False" for Nexmo
+#Set to "True" if you would like to use Twilio for SMS/calls or "False" for Vonage
 USE_TWILIO="True"
 
-#NEXMO
+#VONAGE
 #Application id and private key are used to generate JWT for the voice api
 NEXMO_APPLICATION_ID="NEXMO_APPLICATION_ID"
 NEXMO_PRIVATE_KEY="./NEXMO_PRIVATE_KEY"
@@ -20,6 +20,7 @@ NEXMO_API_SECRET="NEXMO_API_SECRET"
 NEXMO_NUMBER="NEXMO_VIRTUAL_NUMBER"
 NEXMO_WHATSAPP_NUMBER="NEXMO_WHATSAPP_NUMBER"
 
+#TWILIO
 TWILIO_ACCOUNT_SID="TWILIO_ACCOUNT_SID"
 TWILIO_AUTH_TOKEN="TWILIO_AUTH_TOKEN"
 TWILIO_NUMBER="TWILIO_NUMBER"
@@ -33,7 +34,7 @@ WAIT_AFTER_CALL="120"
 #Of course, you can change this parameter as you wish
 NIGHTSCOUT_FAILED_PING_SMS="60"
 
-# If after X seconds NIGHTSCOUT entries still not updating  sms is sent to user notifying about$
+# If after X seconds NIGHTSCOUT entries still not updating  sms is sent to user notifying the dashboard is offline
 NIGHTSCOUT_NOT_UPDATE_SECONDS = "1800"
 # After sending the sms if the issue persist, wait for X intents to send the next sms
 WAIT_AFTER_SMS_MARK="30"

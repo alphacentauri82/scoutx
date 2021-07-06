@@ -1,8 +1,8 @@
 {
-    "name": "Heroku: ns-notifier",
+    "name": "Heroku: scoutx",
     "description": "A Flask App that send sms alerts about glucose level to your family or friends.",
     "image": "heroku/python",
-    "repository": "https://github.com/nexmo-community/nexmo-scout",
+    "repository": "https://github.com/alphacentauri82/scoutx",
     "keywords": ["python", "flask" ],
     "env": {
       "GOOGLE_CLIENT_ID": {
@@ -12,16 +12,16 @@
           "description":"A json file with the firebase credentials."
       },
       "NEXMO_APPLICATION_ID": {
-          "description": "The application id, get this in the vonage dashboard for nexmo > inside the application settings."
+          "description": "The application id, get this in the vonage dashboard > in the application settings."
       },
       "NEXMO_PRIVATE_KEY": {
-        "description": "The private key path, you can download this in the vonage dashboard for nexmo > inside the application settings"
+        "description": "The private key path, you can download this in the vonage dashboard > in the application settings"
       },
       "NEXMO_API_KEY": {
-          "description": "The nexmo api key. Available in the user settings section on the vonage dashboard for nexmo"
+          "description": "The nexmo api key. Available in the user settings section on the vonage dashboard"
       },
       "NEXMO_API_SECRET": {
-          "description": "The api secret, also available in the user settings section on the vonage dashboard for nexmo"
+          "description": "The api secret, also available in the user settings section on the vonage dashboard"
       },
       "NEXMO_NUMBER": {
           "description": "Your nexmo number"
