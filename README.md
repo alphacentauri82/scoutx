@@ -74,7 +74,7 @@ For the `firebase secrets json` file just put the content in a single line. Copy
 
 When clicking on the the deploy button:
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/nexmo-community/nexmo-scout)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/alphacentauri82/scoutx)
 
 You will see something like this:
 
