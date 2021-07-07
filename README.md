@@ -49,7 +49,7 @@ This project has evolved a lot since it was first developed. The current roadmap
 ----------
 ### Send SMS to get BG Data 
 
-The endpoint defined to manage the SMS Webhook is: /webhooks/inbound-messages
+The endpoint defined to manage the SMS Webhook is: `/webhooks/inbound-messages`
 
 To guarantee the functionality of the integration, users have to send the following message to the number associated with the application -> "Nightscout return the latest blood glucose level entry"
 
