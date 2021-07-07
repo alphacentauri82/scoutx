@@ -59,7 +59,7 @@ Before you start deploying your App using the Heroku Deploy Button. You need to 
 
 Download your private key file from the communications dashboard and run the following command:
 
-```
+```bash
 awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ./private.key
 ```
 
@@ -68,8 +68,18 @@ This command is going to retrieve the private key in a single line.
 For the `firebase secrets json` file just put the content in a single line. Copy and paste it in the `FIREBASE_PRIVATE_KEY` field. The content sould look like this:
 
 ```json
-{"type": "xxxxx","project_id": "xxxxx","private_key_id": "xxxxx","private_key": "xxxxx","client_email": "xxxxx","client_id": "xxxxx","auth_uri": "xxxxx","token_uri": "xxxxx","auth_provider_x509_cert_url": "xxxxx","client_x509_cert_url": "xxxxx"}
-
+{
+  "type": "xxxxx",
+  "project_id": "xxxxx",
+  "private_key_id": "xxxxx",
+  "private_key": "xxxxx",
+  "client_email": "xxxxx",
+  "client_id": "xxxxx",
+  "auth_uri": "xxxxx",
+  "token_uri": "xxxxx",
+  "auth_provider_x509_cert_url": "xxxxx",
+  "client_x509_cert_url": "xxxxx"
+}
 ```
 
 When clicking on the the deploy button:
