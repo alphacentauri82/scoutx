@@ -102,4 +102,4 @@ I'm super honoured for all the support and help from [The Nightscout Foundation]
 
 ## Contributing
 
-All contributions are welcome. Make sure you follow the [code of conduct](CODE_OF_CONDUCT.MD) in this repository. 
+All contributions are welcome. Make sure you follow the [code of conduct](https://github.com/alphacentauri82/scoutx/blob/main/CODE_OF_CONDUCT.MD) in this repository. 
