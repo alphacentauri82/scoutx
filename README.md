@@ -98,6 +98,8 @@ Thanks to [@mariacarlinahernandez](https://github.com/mariacarlinahernandez) for
 
 Thanks to [@vmalepati1](https://github.com/vmalepati1) for adding [Twilio](https://twilio.com) support and Whatsapp messages 💜
 
+Thanks to [@whitep4nth3r](https://github.com/hitep4nth3r) for the awesome website and all her support. Follow her on [twitch](https://twitch.tv/whitep4nth3r) and [twitter](https://twitter.com/whitep4nth3r) 💜
+
 I'm super honoured for all the support and help from [The Nightscout Foundation](https://www.nightscoutfoundation.org/), [Parley Labs](https://parleylabs.com/) and [Helium](https://helium.com) - Making it possible to get the necessary equipment to assemble more trackers and test connectivity with #ThePeoplesNetwork. From the bottom of my heart: thank you!
 
 ## Contributing
