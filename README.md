@@ -86,6 +86,7 @@ For the `firebase secrets json` file just put the content in a single line. Copy
   "client_x509_cert_url": "xxxxx"
 }
 ```
+You may configure whether you want to use the Vonage API or the Twilio API using the `USE_TWILIO` field.
 
 When clicking on the the deploy button:
 
