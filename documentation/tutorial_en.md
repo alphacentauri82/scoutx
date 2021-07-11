@@ -29,9 +29,9 @@ Scout relies on 4 applications for its operation.
 
 	You can get more information in the following links: https://nightscout.info and 	https://github.com/nightscout/cgm-remote-monitor
 
-- **Nexmo:** The Vonage API Platform, provides tools for voice, messaging and phone verification services, allowing developers to embed contextual, programmable communications into mobile apps, websites and business systems, enabling enterprises to easily communicate relevant information to their customers in real time, anywhere in theworld, through text messaging, chat, social media and voice.
-
-	In order to use all these amazing services for our app, we need to create an account, create an application, 		create a virtual number and have sufficient balance to be able to use the service. Check this link for more 		information: https://developer.nexmo.com/
+- One of the following communication APIs (your choice)
+	- **Nexmo:** The Vonage API Platform, provides tools for voice, messaging and phone verification services, allowing developers to embed contextual, programmable communications into mobile apps, websites and business systems, enabling enterprises to easily communicate relevant information to their customers in real time, anywhere in theworld, through text messaging, chat, social media and voice. In order to use all these amazing services for our app, we need to create an account, create an application, create a virtual number and have sufficient balance to be able to use the service. Check this link for more information: https://developer.nexmo.com/
+	- **Twilio:** Twilio allows software developers to programmatically make and receive phone calls, send and receive text messages, and perform other communication functions using its web service APIs. Like Nexmo, Twilio requires you to create an account, create a project, register a phone number, and have sufficient balance to be able to use the service. See https://www.twilio.com/docs for more information
 
 - **Google Auth:** The API that allows us to use the Google authentication service for our web application. More information at https://developers.google.com/identity/protocols/OAuth2
 
@@ -1012,15 +1012,20 @@ With these last details we have concluded configuring google auth login and fire
 
 At this point we should be able to log in with Google, add our nightscout configuration from the form, save our data in firestore, modify our configuration and properly log out.
 
-# 3. Setting up/configuring the app in Nexmo and creatin a cheduler in Python for Nightscout alerts
+# 3. Choosing a Communication API and creating a scheduler in Python for Nightscout alerts
 
-In the previous section we finishedthe part of our application where the user can add, edit and check their settings from a UI created in flask with jinja using google auth for authentication and firebase/firestore for data storage.
+In the previous section we finished the part of our application where the user can add, edit and check their settings from a UI created in flask with jinja using google auth for authentication and firebase/firestore for data storage.
 
 From now on we will focus on the creation of a thread that runs independently to execute a function with a given frequency to make a `call` to their own contact number, to alert them when their blood glucose level is outside the ranges previously set for high/low. In case the user does not respond, the application should proceed to send an `sms` to the emergency contact registered by the user and up to five additional numbers to alert them in case the user does not respond. If after a reasonable time the glucose level remains outside the allowed range, the application repeats the process.
 
 Another case contemplated is that if the `nightscout_url` does not respond after 1h, the application must send an `sms` indicating the user that their Nightscout service hasn't received any data.
 
-## Create and configure a Nexmo account
+From here it is necessary to determine which communication API you want to use. You can jump to the respective content for either Vonage or Twilio using the links below.
+
+- [Vonage API](#using-nexmo-as-your-communication-API)
+- [Twilio API](#using-twilio-as-your-communication-API)
+
+## Using Nexmo as your Communication API 
 
 - Go to: https://dashboard.nexmo.com/sign-up
 
@@ -1097,18 +1102,11 @@ Let's edit our `.env` file and add the following:
 NEXMO_APPLICATION_ID="NEXMO_APPLICATION_ID"
 NEXMO_PRIVATE_KEY="./nexmo_private.key"
 NEXMO_NUMBER="NEXMO_VIRTUAL_NUMBER"
+NEXMO_WHATSAPP_NUMBER="NEXMO_WHATSAPP_NUMBER"
 ```
 
-Remember to replace these values with your information. If you don't have a virtual number, you can use `Nexmo` as a value.
-
-Our application will ping a Nighscout dashboard every minute and get the user's blood glucose level. In case this level is not in the allowed range, the application will call the user alerting them of such. However, without an important modification, if values remain out of range after considerable period of time even after the user has taken the call, it will be made every minute, for that reason we will establish an additional variable called `WAIT_AFTER_CALL` to prevent this from happening. Another variable that we will define is `NEXMO_FAILED_PING_SMS` to control the number of failed pings for the user's Nightscout, the default number will be `60` (equivalent to 1 hr) considering that each ping will be made every minute. In case the number of failed pings reaches this value, an `sms` will be sent to the user to alert them their service has been offline for an hour.
-
-Let's add the following to the end of our `.env` file:
-
-```ruby
-WAIT_AFTER_CALL="120"
-NEXMO_FAILED_PING_SMS="60"
-```
+Remember to replace these values with your information. If you don't have a virtual number, you can use `Nexmo` as a value. The virtual number goes in the `NEXMO_NUMBER` field. 
+`NEXMO_WHATSAPP_NUMBER` is a completely different and separate number. You may choose to use the default sandbox number `14157386170` or an actual WhatsApp business number that has been configured through Messages and Dispatch > Social Channels. See https://developer.nexmo.com/messages/concepts/whatsapp for more information. If you choose to use the WhatsApp sandbox, you will have to whitelist the number you intend to send WhatsApp notifications to by going to Messages and Dispatch > Sandbox and then scanning the QR code.
 
 Making an inventory of the modules we need to develop this part of the application, we need to create a Thread to execute our job. Python has `Thread` and `Multiprocessing`, both native modules. We will make some requests to obtain information from the Nightscout api and to use the messages api to send`sms`, we can use the `requests` module (previously installed).
 If possible a scheduler that allows us to execute a function periodically and that runs in the `Thread` that we create with `Multiprocessing`. The `schedule` module fits perfectly, and logically we will use the `Nexmo` module to use `VOICE API` when connecting to our Nexmo Application.
@@ -1345,11 +1343,176 @@ Because we are interested in evaluating the status of the call, we make a condit
 
 If the record exists, we will recover the last glucose levels for the user, with `requests` and the `get` method, as follows `entries = requests.get(uscout["nightscout_api"]).Json()` and from there we get the last glucose level registered for the user `glucose = entries[0]['sgv']` (Nightscout API orders the entries in descending order, indicating that the last glucose level will be the first). With the glucose level obtained we use the `sms_glucose_alert` function to send an `sms` indicating the user's glucose level to their emergency contact and any additional numbers registered.
 
-With this we have finished the functions section for sending notifications!! 🍾
+With this we have finished the functions section for sending notifications!! 🍾 Now you may skip to [Using Scheduler to send automatic notifications](#using-scheduler-to-send-automatic-notifications) since you won't be using Twilio.
 
-## Using Scheduler to sendi automatic notifications
+## Using Twilio as your Communication API
 
-In this section we will add the code responsible for creating a parallel thread to our `Flask` application, which will be executing the `scheduler` which in turn will evaluate the glucose levels of the user of our the application and will execute the function `call_glucose_alert` if the glucose level is not in the allowed range. In addition to this, the scheduler is responsible for executing the `handle_nightscout_failed_pings` function that will evaluate the number of failed connection attempts to the user nightscout and will send the notification when it has reached the maximum number of allowed attempts.
+If you have chosen to use Twilio as your communication API, navigate to the [Twilio console](https://www.twilio.com/console). You will be prompted to login, and if you don't have an account already, you can create one by clicking the sign up for free button. Once you log in, you will be greeted at the Twilio dashboard. Here you can create a new project by clicking the dropdown and selecting `Create New Project`. You will be asked for a project name which can be anything you want. You may also be asked to verify your account via email and SMS. After verifying your account, select `SMS` as the product you are going to use, select `Alerts & Notifications` for what you plan to build, select `With code` for how you want to build, select `Python` for your preferred coding language, and select `No, I want to use my own hosting service` for whether you want to host your code on Twilio servers. After inputting all the necessary information in the project prompt and clicking the `Get Started with Twilio` button, you will be greeted by the Twilio dashboard. Here you will see your account SID and your authorization token.
+
+Add the following lines to your `.env`:
+```ruby
+TWILIO_ACCOUNT_SID="TWILIO_ACCOUNT_SID"
+TWILIO_AUTH_TOKEN="TWILIO_AUTH_TOKEN"
+```
+
+Remember to replace the values with your actual information. 
+
+Next, you will need to buy a number or use a trial number. You can get a trial number by clicking the Home icon and going to your dashboard. Scrolling down past where you previously retrieved your Account SID and auth token, you can click the `Get a trial phone number` button. If you need a more permanent number, you can click the number icon > Buy a Number. Then add the following to your `.env`:
+
+```ruby
+TWILIO_NUMBER="TWILIO_NUMBER"
+```
+
+Also add a WhatsApp number if you intend to support WhatsApp notifications:
+```ruby
+TWILIO_WHATSAPP_NUMBER="TWILIO_WHATSAPP_NUMBER"
+```
+Your WhatsApp number can be the default sandbox number `14155238886` or a Twilio number that has been enabled for WhatsApp through the messaging icon > Senders > WhatsApp Senders > `Sign up to request access` button.
+
+Now, go to `notifier.py`, and under the last import add the following:
+
+```python
+import twilio.rest
+import schedule, time, signal, uuid
+
+from multiprocessing import Process
+```
+
+In the same file (`notifier.py`), before the definition of the `get_session` function, add the following lines:
+```python
+............
+
+client = twilio.rest.Client(os.getenv('TWILIO_ACCOUNT_SID'),
+			os.getenv('TWILIO_AUTH_TOKEN'))
+
+active_scouts = nightscouts.get_all()	
+
+............
+
+def get_session(key):
+```
+
+In `notifier.py`, after the endpoint definition `/logout`. We will add the functions responsible for notifications to users. We will start with the function that notifies the user indicating that the Nightscout service is not responding, for this we will use the Twilio messaging client since we will be sending an `sms`:
+
+```python
+nightscout_failed_pings = {}
+
+
+def handle_nightscout_failed_pings(to, api_url, username):
+    global client
+    global nightscout_failed_pings
+    if to not in nightscout_failed_pings:
+        nightscout_failed_pings[to] = 1
+    else:
+        nightscout_failed_pings[to] += 1
+    # print('Intent: {0} for {1}'.format(nightscout_failed_pings[to],to))
+    if nightscout_failed_pings[to] == int(os.getenv("NIGHTSCOUT_FAILED_PING_SMS")):
+        # Reset the variable
+        nightscout_failed_pings[to] = 0
+        
+        message = client.messages \
+                .create(
+                         body="Dear {0} the Nightscout api url: {1} is not responding, please check the service".format(username, api_url),
+                         from_=os.getenv("TWILIO_NUMBER"),
+                         to=to
+                 )
+
+        if message.status != 'failed':
+            return True
+            
+    return False
+```
+
+At the end of our file let's add the following function, which will also send the user's glucose level to a number chosen by the user in the _UI_:
+```python
+def sms_glucose_alert(to, username, glucose):
+    global client
+
+    message = client.messages \
+            .create(
+                     body="Alert {username} Blood Glucose is {glucose}".format(username=username, glucose=glucose),
+                     from_=os.getenv("TWILIO_NUMBER"),
+                     to=to
+             )
+
+    if message.status != 'failed':
+        return True
+		
+    return False
+```
+
+Then we add the function `call_glucose_alert`:
+```python
+last_call = {}
+def call_glucose_alert(to, glucose):
+    if to in last_call:
+        if int(time.time()-last_call[to]) < int(os.getenv("WAIT_AFTER_CALL")):
+            print("The number {0} was called recently.. Please wait a little longer: {1}".format(
+                to, int(time.time()-last_call[to])))
+            return False
+    # print('Call {0} {1}'.format(to, glucose))
+    last_call[to] = time.time()
+    
+    call = client.calls.create(
+                                    method='GET',
+                                    twiml='<Response><Say>Alert Your Blood Glucose is {0}</Say></Response>'.format(glucose),
+                                    status_callback=os.getenv("SITE_URL") + "/webhooks/twilio-on-completed",
+                                    status_callback_event=['completed'],
+                                    status_callback_method='POST',
+                                    to=to,
+                                    from_=os.getenv("TWILIO_NUMBER")
+                            )
+
+    if call.status != 'failed':
+            return True
+        
+    return False
+```
+
+And then finally the webhook that handles when the call has completed at the end of our `notifier.py`:
+```python
+@app.route('/webhooks/twilio-on-completed', methods=["POST", "GET"])
+def on_completed():
+    global active_scouts
+    global glucose
+    
+    phone = request.values.get('To', '')
+    # The next line is not recomended its functional but use the global active_scouts variable
+    # This variable is updated by the daemon process.. that run in another context
+    # Not the flask context, for that reason we are going to use firebase to get
+    # fresh data
+    # uscout = [active_scout for active_scout in active_scouts if active_scout['phone'] == phone]
+    uscout = nightscouts.getby_personal_phone(phone)
+    if uscout != None:
+        entries = requests.get(uscout["nightscout_api"]).json()
+        glucose = entries[0]['sgv']
+        sms_glucose_alert(
+            uscout["emerg_contact"], uscout["username"], glucose)
+        # print('sms simulation to: {0} {1} {2}'.format(uscout["emerg_contact"], uscout["username"], glucose))
+        for index, phone in enumerate(uscout["extra_contacts"]):
+            # print('sms simulation to: {0} {1} {2}'.format(phone, uscout["username"], glucose))
+            if uscout['extra_contacts_use_whatsapp'][index] is not True:
+                sms_glucose_alert(phone, uscout["username"], glucose)
+            else:
+                whatsapp_glucose_alert(phone, uscout["username"], glucose)
+
+    return "Event Received"
+```
+
+For more elaboration on exactly how the functions above work, please see the Nexmo section. This is to prevent unecessary repetition of expalanations. The functions have the same names except for `on_completed` (the Nexmo equivalent is the webhook endpoint `events`). The functions have almost the same implementations, except for the code that makes the actual call to the Vonage or Twilio API.
+
+## Using Scheduler to send automatic notifications
+
+Our application will ping a Nighscout dashboard every minute and get the user's blood glucose level. In case this level is not in the allowed range, the application will call the user alerting them of such. However, without an important modification, if values remain out of range after considerable period of time even after the user has taken the call, it will be made every minute, for that reason we will establish an additional variable called `WAIT_AFTER_CALL` to prevent this from happening. Another variable that we will define is `NEXMO_FAILED_PING_SMS` to control the number of failed pings for the user's Nightscout, the default number will be `60` (equivalent to 1 hr) considering that each ping will be made every minute. In case the number of failed pings reaches this value, an `sms` will be sent to the user to alert them their service has been offline for an hour.
+
+Let's add the following to the end of our `.env` file:
+
+```ruby
+WAIT_AFTER_CALL="120"
+NEXMO_FAILED_PING_SMS="60"
+```
+
+We will also add the code responsible for creating a parallel thread to our `Flask` application, which will be executing the `scheduler` which in turn will evaluate the glucose levels of the user of our the application and will execute the aforementioned function `call_glucose_alert` if the glucose level is not in the allowed range. In addition to this, the scheduler is responsible for executing the `handle_nightscout_failed_pings` function that will evaluate the number of failed connection attempts to the user nightscout and will send the notification when it has reached the maximum number of allowed attempts.
 
 Let's add the following lines to the end of the `notifier.py`:
 
