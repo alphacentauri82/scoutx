@@ -1,8 +1,8 @@
 {
-    "name": "Heroku: ns-notifier",
-    "description": "A Flask App that send sms alerts about glucose level to your family or friends.",
+    "name": "Heroku: ScoutX",
+    "description": "Notify your emergency contacts in case your blood glucose levels are out of range!",
     "image": "heroku/python",
-    "repository": "https://github.com/nexmo-community/nexmo-scout",
+    "repository": "repository": "https://github.com/alphacentauri82/scoutx",
     "keywords": ["python", "flask" ],
     "env": {
       "GOOGLE_CLIENT_ID": {
