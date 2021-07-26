@@ -2,7 +2,7 @@
     "name": "Heroku: ScoutX",
     "description": "Notify your emergency contacts in case your blood glucose levels are out of range!",
     "image": "heroku/python",
-    "repository": "repository": "https://github.com/alphacentauri82/scoutx",
+    "repository": "https://github.com/alphacentauri82/scoutx",
     "keywords": ["python", "flask" ],
     "env": {
       "GOOGLE_CLIENT_ID": {
