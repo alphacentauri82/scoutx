@@ -54,7 +54,9 @@ To guarantee the functionality of the integration, users have to send the follow
 
 Before you start deploying your App using the Heroku Deploy Button, you need to get the following:
 
-- Nexmo credentials from [Vonage dashboard](https://dashboard.nexmo.com/)
+- Communication API credentials from either Vonage or Twilio
+  - Nexmo credentials can be found in the [Vonage dashboard](https://dashboard.nexmo.com/)
+  - Twilio credentials can be found in the [Twilio console](https://www.twilio.com/console)
 - Using the firebase console get the [Firebase database secrets](https://firebase.google.com/)
 - From Google Cloud get the [google client id](https://console.cloud.google.com/apis/credentials) needed for auth using the client. 
 
@@ -84,6 +86,7 @@ For the `firebase secrets json` file just put the content in a single line. Copy
   "client_x509_cert_url": "xxxxx"
 }
 ```
+You may configure whether you want to use the Vonage API or the Twilio API using the `USE_TWILIO` field.
 
 When clicking on the the deploy button:
 

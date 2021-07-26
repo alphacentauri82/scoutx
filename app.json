@@ -1,6 +1,6 @@
 {
-    "name": "Heroku: scoutx",
-    "description": "A Flask App that send sms alerts about glucose level to your family or friends.",
+    "name": "Heroku: ScoutX",
+    "description": "Notify your emergency contacts in case your blood glucose levels are out of range!",
     "image": "heroku/python",
     "repository": "https://github.com/alphacentauri82/scoutx",
     "keywords": ["python", "flask" ],
@@ -11,20 +11,38 @@
       "FIREBASE_PRIVATE_KEY": {
           "description":"A json file with the firebase credentials."
       },
+      "USE_TWILIO": {
+          "description": "Set to True if you would like to use Twilio for SMS/calls or False for Vonage"
+      },
       "NEXMO_APPLICATION_ID": {
-          "description": "The application id, get this in the vonage dashboard > in the application settings."
+          "description": "The application id, get this in the vonage dashboard for nexmo > inside the application settings."
       },
       "NEXMO_PRIVATE_KEY": {
-        "description": "The private key path, you can download this in the vonage dashboard > in the application settings"
+        "description": "The private key path, you can download this in the vonage dashboard for nexmo > inside the application settings"
       },
       "NEXMO_API_KEY": {
-          "description": "The nexmo api key. Available in the user settings section on the vonage dashboard"
+          "description": "The nexmo api key. Available in the user settings section on the vonage dashboard for nexmo"
       },
       "NEXMO_API_SECRET": {
-          "description": "The api secret, also available in the user settings section on the vonage dashboard"
+          "description": "The api secret, also available in the user settings section on the vonage dashboard for nexmo"
       },
       "NEXMO_NUMBER": {
           "description": "Your nexmo number"
+      },
+      "NEXMO_WHATSAPP_NUMBER": {
+          "description": "Your nexmo WhatsApp number. This can be the default sandbox number 14157386170 or a WhatsApp business number that has been configured through Messages and Dispatch > Social Channels"
+      },
+      "TWILIO_ACCOUNT_SID": {
+          "description": "The Twilio account SID. Available in the project info section of the Twilio console"
+      },
+      "TWILIO_AUTH_TOKEN": {
+          "description": "The Twilio auth token, also available in the project info section of the Twilio console"
+      },
+      "TWILIO_NUMBER": {
+          "description": "Your Twilio number. You can find this in the Phone Numbers tab of the Twilio console"
+      },
+      "TWILIO_WHATSAPP_NUMBER": {
+          "description": "Your Twilio WhatsApp number. This can be the default sandbox number 14155238886 or a Twilio number that has been enabled for WhatsApp through the Programmable Messaging tab > Sender Pool"
       },
       "SITE_URL": {
           "description": "Your heroku main url"
@@ -37,5 +55,5 @@
           "description": "When the number of failed pings is 60 send a sms to customer",
           "value": "60"
       }
-    }
-  }
+	}
+}
